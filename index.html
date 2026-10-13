@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DIGITAL GENESIS — Chapter 1</title>
+<link rel="stylesheet" href="css/style.css?v=14">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>🍊</text></svg>">
+</head>
+<body>
+<div id="shell">
+  <div id="screenwrap">
+    <canvas id="game" width="640" height="480"></canvas>
+    <div id="scanlines"></div>
+    <div id="crtglow"></div>
+  </div>
+  <div id="hintbar">
+    <span><b>Z</b>/<b>Enter</b> Confirm</span>
+    <span><b>X</b>/<b>Shift</b> Cancel</span>
+    <span><b>Arrows</b>/<b>WASD</b> Move</span>
+    <span><b>C</b> Menu</span>
+    <span><b>B</b> Emote</span>
+    <span><b>/</b> Command Chat</span>
+    <span><b>F</b> Fullscreen</span>
+  </div>
+</div>
+<div id="chatoverlay" class="hidden">
+  <div id="chatlog"></div>
+  <div id="chatinputrow"><span id="chatprompt">&gt;</span><input id="chatinput" type="text" autocomplete="off" spellcheck="false" maxlength="120"></div>
+</div>
+<div id="adminpanel" class="hidden">
+  <div class="apHead">■ SANDBOX MODE :: DEVELOPER TOOLS <button id="apClose">X</button></div>
+  <div class="apBody" id="apBody"></div>
+</div>
+<div id="rotate" class="hidden">Please rotate your device / widen the window.</div>
+
+<script src="js/util.js?v=14"></script>
+<script src="js/audio.js?v=14"></script>
+<script src="js/sprites.js?v=14"></script>
+<script src="js/fx.js?v=14"></script>
+<script src="js/state.js?v=14"></script>
+<script src="js/abilities.js?v=14"></script>
+<script src="js/enemies.js?v=14"></script>
+<script src="js/dialogue.js?v=14"></script>
+<script src="js/ui.js?v=14"></script>
+<script src="js/shop.js?v=14"></script>
+<script src="js/battle.js?v=14"></script>
+<script src="js/domain.js?v=14"></script>
+<script src="js/orangefight.js?v=14"></script>
+<script src="js/overworld.js?v=14"></script>
+<script src="js/console.js?v=14"></script>
+<script src="js/story.js?v=14"></script>
+<script src="js/main.js?v=14"></script>
+</body>
+</html>
