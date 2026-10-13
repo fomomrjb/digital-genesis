@@ -296,7 +296,7 @@ const Battle = {
     this.dealDamage(dmg, {});
     this.say('* ' + comboN + '-hit ' + ab.name + '. ' + dmg + ' damage.' + (allPerfect ? ' Flawless.' : ''));
     this.bar = null;
-    this.st = 'resolve'; this.t = 0;
+    this.toResolve();
   },
 
   /* ============ techniques ============ */
@@ -381,7 +381,7 @@ const Battle = {
         this.say('* ' + ab.name + '. ' + d + ' damage.');
       }
     }
-    this.st = 'resolve'; this.t = 0;
+    this.toResolve();
   },
 
   openCopyMenu() {
@@ -413,7 +413,7 @@ const Battle = {
       FX.pop(this.enemyX(), this.enemyY() - 30, 'INFINITY', { col: PAL.cyan, scale: 2 });
       Audio.sfx('block');
       this.say('* Your hand slows to a stop an inch away. Infinity. (Try NULL.)');
-      this.st = 'resolve'; this.t = 0; return;
+      this.toResolve(); return;
     }
     this.ehp = Math.max(0, this.ehp - d);
     this.eFlash = .18; this.shakeE = .2;
@@ -467,7 +467,7 @@ const Battle = {
         this.say('* You read the equation. It is a division-by-zero error. It has a value. (Infinity weakened.)');
         break;
     }
-    this.st = 'resolve'; this.t = 0;
+    this.toResolve();
   },
 
   trySpare() {
@@ -479,7 +479,7 @@ const Battle = {
       this.say(this.e.spareAt == null
         ? '* It is not interested in mercy.'
         : '* Not yet. Wear them down or talk to them first.');
-      this.st = 'resolve'; this.t = 0;
+      this.toResolve();
     }
   },
 
@@ -516,6 +516,7 @@ const Battle = {
   /* ============ turn flow ============ */
   endPlayerTurn() {
     if (!this.active) return;
+    if (this.result) { this.st = this.result === 'lose' ? 'defeat' : 'victory'; return; }
     if (this.ehp <= 0) { this.win(); return; }
     this.turn++;
     // tick buffs
@@ -529,6 +530,7 @@ const Battle = {
     this.st = 'enemyintro'; this.t = 0;
   },
   upResolve(dt) {
+    if (this.result) { this.st = this.result === 'lose' ? 'defeat' : 'victory'; this.t = 0; return; }
     if (this.t > .75 || Input.just('ok')) this.endPlayerTurn();
   },
   upEnemyIntro(dt) {
@@ -567,7 +569,7 @@ const Battle = {
         ? '* [SYSTEM MUTE: PERMISSIONS REVOKED] They cannot act.'
         : '* They rubberband violently back into their previous position. Turn skipped.');
       Audio.sfx('glitch'); FX.glitch(.3);
-      this.st = 'resolve'; this.t = 0; this.turnSkipped = true;
+      this.toResolve(); this.turnSkipped = true;
       timers.after(.9, () => { if (this.st === 'resolve') { this.st = 'menu'; } });
       return;
     }
@@ -822,8 +824,16 @@ const Battle = {
   },
 
   /* ============ win / lose ============ */
+  /* never clobber a finished battle: a killing blow must stick */
+  toResolve() {
+    if (this.result) {
+      this.st = this.result === 'lose' ? 'defeat' : 'victory';
+      return;
+    }
+    this.st = 'resolve'; this.t = 0;
+  },
   win(spared = false) {
-    if (this.result) return;
+    if (this.result) { if (this.result !== 'lose') this.st = 'victory'; return; }
     this.result = spared ? 'spared' : 'win';
     this.st = 'victory'; this.t = 0; this.bullets = [];
     G.battlesWon++;

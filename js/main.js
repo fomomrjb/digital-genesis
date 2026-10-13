@@ -383,11 +383,11 @@ const Game = {
       textC('IN CHAPTER 2: THE CULLING GAME', W / 2, 284, { scale: 3, color: PAL.orange2, shadow: '#000' });
       if (t > 2.4) textC('PLAYER REGISTERED · POINTS 0 · COLONY UNASSIGNED', W / 2, 330, { scale: 2, color: PAL.green });
       if (t > 3.6) textC('RULE 10: A PLAYER MAY ADD A NEW RULE TO THE GAME.', W / 2, 358, { scale: 2, color: PAL.yellow });
-      if (t > 5) textC('ORANGE: "we are going to add SO many rules."', W / 2, 392, { scale: 2, color: PAL.orange2 });
+      if (t > 5) textC('ORANGE: "we are going to add SO many rules."', W / 2, 386, { scale: 2, color: PAL.orange2 });
       ctx.restore();
-      drawActor('kenji', 60, 300, 5, { t, dir: 2 });
-      drawActor('orange', 150, 340, 4, { t, hop: true, glow: true });
-      if (t > 7.6) textC('[ Z ] SKIP AHEAD', W / 2, H - 24, { scale: 1, color: '#55637d' });
+      drawActor(skinSprite(), W / 2 - 74, 404, 3, { t, dir: 2 });
+      drawActor('orange', W / 2 + 26, 414, 3, { t, hop: true, glow: true });
+      if (t > 7.6) textC('[ Z ] SKIP AHEAD', W / 2, H - 14, { scale: 1, color: '#55637d' });
       return;
     }
     /* phase 2: scrolling stats + credits */
@@ -441,7 +441,8 @@ const Game = {
 
 /* ---------- responsive guard ---------- */
 function fitCheck() {
-  const small = innerWidth < 520;
+  // only block when the window is genuinely too narrow to read the HUD
+  const small = innerWidth < 360;
   el('rotate').classList.toggle('hidden', !small);
 }
 addEventListener('resize', fitCheck);
