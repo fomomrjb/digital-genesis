@@ -231,7 +231,7 @@ const Menu = {
       L('DEF', String(G.defTotal()));
       L('SPD', String(G.spd));
       L('EXP', fmt(G.xp));
-      L('NEXT', G.lv >= 40 ? 'MAX' : fmt(Math.max(0, xpFor(G.lv + 1) - G.xp)));
+      L('NEXT', G.lv >= 60 ? 'MAX' : fmt(Math.max(0, xpFor(G.lv + 1) - G.xp)));
       L('DOLLARS', '$' + fmt(G.money), PAL.gold);
       y += 6;
       text('PLAYTIME  ' + timeStr(G.playtime), 180, y, { scale: 1, color: '#7f90ad' }); y += 12;

@@ -775,6 +775,88 @@ function drawDomainInterior(d, t, o) {
       circle(W / 2, H / 2, 22, '#d9d2ff');
       break;
     }
+    case 'pachinko': {                    // Hakari - Private Pure Love Train
+      rect(0, 0, W, H, '#1a0a14');
+      dither(0, 0, W, H, '#1a0a14', '#2e1024', .2);
+      // the train pulling in behind him
+      const tx = ((t * 60) % (W + 400)) - 200;
+      rect(tx, 150, 360, 110, '#8a94a8'); rect(tx, 150, 360, 10, '#c3cbd8');
+      rect(tx, 250, 360, 10, '#4a5466');
+      for (let i = 0; i < 6; i++) { rect(tx + 14 + i * 58, 172, 40, 46, '#1a2436'); rect(tx + 14 + i * 58, 176, 40, 5, '#ff9ec4'); }
+      // pachinko wall
+      for (let i = 0; i < 70; i++) {
+        const px = (i * 61) % W, py = 40 + ((i * 97) % 120);
+        rect(px, py, 5, 5, i % 3 ? '#e8ecf7' : '#ffd24a');
+      }
+      // jackpot light rays
+      ctx.save(); ctx.globalAlpha = .18 + Math.abs(Math.sin(t * 5)) * .14;
+      for (let r = 0; r < 12; r++) {
+        const a = (r / 12) * TAU + t * 1.4;
+        ctx.fillStyle = r % 2 ? '#ffd24a' : '#ff4fa3';
+        ctx.beginPath(); ctx.moveTo(W / 2, H * .62);
+        ctx.lineTo(W / 2 + Math.cos(a - .1) * 520, H * .62 + Math.sin(a - .1) * 520);
+        ctx.lineTo(W / 2 + Math.cos(a + .1) * 520, H * .62 + Math.sin(a + .1) * 520);
+        ctx.closePath(); ctx.fill();
+      }
+      ctx.restore();
+      // floor of coins
+      rect(0, H * .78, W, H, '#3a1b2a');
+      for (let i = 0; i < 40; i++) rect((i * 37) % W, H * .78 + ((i * 53) % 90), 6, 6, '#ffd24a');
+      // the jackpot board
+      const bw2 = 300;
+      rect(W / 2 - bw2 / 2, 24, bw2, 46, '#0a0510'); frameRect(W / 2 - bw2 / 2, 24, bw2, 46, '#ffd24a', 3);
+      const reel = ['7', '7', '7'];
+      for (let i = 0; i < 3; i++) {
+        rect(W / 2 - 110 + i * 76, 32, 60, 30, '#f4eada');
+        textC(reel[i], W / 2 - 80 + i * 76, 38, { scale: 3, color: Math.floor(t * 6) % 2 ? '#b5342a' : '#ff4fa3' });
+      }
+      break;
+    }
+    case 'courtroom': {                   // Higuruma - Deadly Sentencing
+      rect(0, 0, W, H, '#0d0b14');
+      dither(0, 0, W, H, '#0d0b14', '#191430', .25);
+      // bench
+      rect(W / 2 - 170, 150, 340, 90, '#3a2a1c'); rect(W / 2 - 180, 140, 360, 14, '#4a3626');
+      rect(W / 2 - 120, 60, 240, 86, '#241a12');
+      textC('\u6CD5', W / 2, 0, { scale: 1, color: '#0000' });
+      // scales of judgement
+      const sway = Math.sin(t * 1.4) * 8;
+      rect(W / 2 - 2, 70, 4, 60, '#c9a227');
+      rect(W / 2 - 70, 92 + sway, 140, 4, '#c9a227');
+      circle(W / 2 - 70, 104 + sway, 14, '#c9a227', false);
+      circle(W / 2 + 70, 104 - sway, 14, '#c9a227', false);
+      // gallery of silent jurors
+      for (let i = 0; i < 12; i++) {
+        const gx = 30 + (i % 6) * 100, gy = 300 + Math.floor(i / 6) * 70;
+        rect(gx, gy, 40, 48, '#15121f'); rect(gx + 10, gy - 14, 20, 18, '#15121f');
+      }
+      rect(0, H - 60, W, 60, '#120f1c');
+      // the sentence, flickering in
+      ctx.save(); ctx.globalAlpha = .4 + Math.abs(Math.sin(t * 2)) * .4;
+      textC('GUILTY', W / 2, 250, { scale: 4, color: '#ff3b3b', shadow: '#2a0000' });
+      ctx.restore();
+      break;
+    }
+    case 'mutuallove': {                  // Yuta - Authentic Mutual Love
+      rect(0, 0, W, H, '#0a0f18');
+      dither(0, 0, W, H, '#0a0f18', '#16233a', .2);
+      for (let i = 0; i < 9; i++) {
+        const rx = (i * 83) % W, ry = 60 + ((i * 61) % 300);
+        ctx.save(); ctx.globalAlpha = .25;
+        drawActor('rika', rx, ry, 3, { t: t + i, bob: true });
+        ctx.restore();
+      }
+      ctx.save(); ctx.globalAlpha = .5;
+      for (let i = 0; i < 24; i++) {
+        const a = (i / 24) * TAU + t * .5, rr = 120 + Math.sin(t + i) * 30;
+        text('\u2665', W / 2 + Math.cos(a) * rr * 1.5, H / 2 + Math.sin(a) * rr * .8,
+          { scale: 2, color: i % 2 ? '#9fe8ff' : '#ffffff' });
+      }
+      ctx.restore();
+      circle(W / 2, H / 2, 54, '#0d1626'); circle(W / 2, H / 2, 46, '#2a3f6b');
+      circle(W / 2, H / 2, 22, '#cfe3ff');
+      break;
+    }
     case 'selfembodiment': {
       rect(0, 0, W, H, '#2a1a1a');
       dither(0, 0, W, H, '#2a1a1a', '#4a2a28', .25);
@@ -830,6 +912,30 @@ const DOMAINS = {
     barrier: 'CLOSED', sign: 'onehand', signName: 'HAND SIGN: ONE-HANDED',
     accent: '#9b4dff', accent2: '#cfd8ff', accentD: '#2a1b6b',
     interior: 'infinitevoid', music: 'domain'
+  },
+  purelove: {
+    id: 'purelove', name: 'Idle Death Gamble', kanji: '坐殺博徒',
+    sub: 'PRIVATE PURE LOVE TRAIN', jp: '坐殺博徒（プライベert）',
+    effect: 'A 4.1% JACKPOT. HIT IT AND YOU GET INFINITE CURSED ENERGY',
+    barrier: 'CLOSED', sign: 'hands', signName: 'HAND SIGN: SHUTTER',
+    accent: '#ffd24a', accent2: '#ff4fa3', accentD: '#7a4a00',
+    interior: 'pachinko', music: 'orange'
+  },
+  judgeman: {
+    id: 'judgeman', name: 'Deadly Sentencing', kanji: '誅伏賜死',
+    sub: 'DEADLY SENTENCING', jp: '誅伏賜死',
+    effect: 'A TRIAL YOU CANNOT LEAVE. THE VERDICT TAKES YOUR TECHNIQUE OR YOUR LIFE',
+    barrier: 'CLOSED', sign: 'onehand', signName: 'HAND SIGN: GAVEL',
+    accent: '#c9a227', accent2: '#ff3b3b', accentD: '#4a3608',
+    interior: 'courtroom', music: 'domain'
+  },
+  mutuallove: {
+    id: 'mutuallove', name: 'Authentic Mutual Love', kanji: '真贋相愛',
+    sub: 'AUTHENTIC MUTUAL LOVE', jp: '真贋相愛',
+    effect: 'COPIED TECHNIQUES, AMPLIFIED - AND RIKA IS IN HERE WITH YOU',
+    barrier: 'CLOSED', sign: 'onehand', signName: 'HAND SIGN: RING',
+    accent: '#9fe8ff', accent2: '#ffffff', accentD: '#1b3a5c',
+    interior: 'mutuallove', music: 'domain'
   },
   selfembodiment: {
     id: 'selfembodiment', name: 'Self-Embodiment of Perfection',

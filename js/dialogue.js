@@ -21,7 +21,7 @@ const SPEAKERS = {
   megumi:  { name: 'MEGUMI',   spr: 'megumi',     col: '#9ab8ff', voice: 'blip2' },
   nobara:  { name: 'NOBARA',   spr: 'nobara',     col: '#ffc08a', voice: 'blip' },
   nanami:  { name: 'NANAMI',   spr: 'nanami',     col: '#e3c98a', voice: 'blip2' },
-  todo:    { name: 'TODO',     spr: 'yuji',       col: '#ffd24a', voice: 'blip2' },
+  todo:    { name: 'TODO',     spr: 'todo',       col: '#ffd24a', voice: 'blip2' },
   hanami:  { name: 'HANAMI',   spr: 'hanami',     col: '#7ba85f', voice: 'blip2' },
   jogo:    { name: 'JOGO',     spr: 'jogo',       col: '#ff7a2a', voice: 'blip2' },
   dagon:   { name: 'DAGON',    spr: 'dagon',      col: '#7fd9e8', voice: 'blip2' },

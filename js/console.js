@@ -83,7 +83,7 @@ const CMDS = {
     c.log('/admin  /god  /noclip  /oneshot  /allunlock  /unlock <id|all>  /lv <n>  /xp <n>  /money <n>');
     c.log('/tp <area>  /areas  /battle <enemy>  /enemies  /domain <sandbox|void404>  /bf  /of');
     c.log('/speed <x>  /dmg <x>  /hitbox  /music <id>  /mute  /kill  /die  /mission <n>  /flag <k> [v]');
-    c.log('/codex  /reset  /clear  /orange  /time');
+    c.log('/codex  /reset  /clear  /orange  /time  /chapter <n>');
     c.log('Tab completes. Up/Down for history. Esc closes.', 'dim');
   },
   heal(a, c) {
@@ -112,7 +112,7 @@ const CMDS = {
   },
   lock(a, c) { const ab = AB[a[0]]; if (!ab) return c.err('no such id'); delete G.unlocked[ab.id]; c.ok('locked ' + ab.name); },
   lv(a, c) {
-    const n = clamp(parseInt(a[0] || '1', 10) || 1, 1, 40);
+    const n = clamp(parseInt(a[0] || '1', 10) || 1, 1, 60);
     G.lv = 1; G.xp = 0; G.hpMax = 60; G.atk = 9; G.def = 3; G.spd = 7;
     const ups = G.gainXP(xpFor(n));
     ABILITIES.forEach(ab => { if (ab.lv <= G.lv) G.unlocked[ab.id] = true; });
@@ -200,9 +200,23 @@ const CMDS = {
     c.ok('music ' + G.musicVol.toFixed(2) + '  sfx ' + G.sfxVol.toFixed(2));
   },
   mission(a, c) {
+    const L = Story.list();
     const n = parseInt(a[0], 10);
-    if (isNaN(n)) { c.log('current mission: ' + G.mission + ' / ' + (MISSIONS.length - 1)); c.log(MISSIONS.map((m, i) => i + ': ' + m.title).join('\n'), 'dim'); return; }
-    c.hide(); Story.jumpTo(clamp(n, 0, MISSIONS.length - 1)); c.ok('jumped to mission ' + n);
+    if (isNaN(n)) {
+      c.log('chapter ' + (G.chapter || 1) + ', mission ' + G.mission + ' / ' + (L.length - 1));
+      c.log(L.map((m, i) => i + ': ' + m.title + '  (lv ' + m.minLv + ')').join('\n'), 'dim'); return;
+    }
+    c.hide(); Story.jumpTo(clamp(n, 0, L.length - 1)); c.ok('jumped to mission ' + n);
+  },
+  chapter(a, c) {
+    const n = parseInt(a[0], 10);
+    if (isNaN(n)) {
+      c.log('current: chapter ' + (G.chapter || 1));
+      c.log(CHAPTERS.map(ch => ch.n + ': ' + ch.title + ' (' + ch.missions.length + ' missions)').join('\n'), 'dim');
+      return;
+    }
+    if (!CHAPTERS[n - 1]) return c.err('no such chapter');
+    c.hide(); Story.startChapter(n); c.ok('chapter ' + n + ': ' + CHAPTERS[n - 1].title);
   },
   flag(a, c) {
     const k = a[0];
@@ -306,7 +320,7 @@ const AdminPanel = {
     const s2 = sec('PLAYER');
     const r1 = row(s2, 'level  (' + G.lv + ')');
     const lvi = document.createElement('input');
-    lvi.type = 'range'; lvi.min = 1; lvi.max = 40; lvi.step = 1; lvi.value = G.lv;
+    lvi.type = 'range'; lvi.min = 1; lvi.max = 60; lvi.step = 1; lvi.value = G.lv;
     lvi.onchange = () => { CMDS.lv([lvi.value], ChatConsole); this.render(); };
     r1.appendChild(lvi);
     const r2 = row(s2, 'dollars');

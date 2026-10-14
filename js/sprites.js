@@ -63,7 +63,63 @@ const CHARS = {
   curseBlob: { kind: 'blob', col: '#6b3fa0', col2: '#3f1f6b' },
   curseBug: { kind: 'bug', col: '#4a5a2a', col2: '#2a3416' },
   curseBig: { kind: 'bigcurse', col: '#2a1b33', col2: '#140d1c' },
-  curseFinger: { kind: 'finger' }
+  curseFinger: { kind: 'finger' },
+
+  todo: { kind: 'human', hair: '#17171f', hair2: '#0c0c12', style: 'flat',
+    skin: '#c98f66', skin2: '#a06b48', eye: '#2a2a2a', top: '#141a2b', top2: '#0b0f1c',
+    trim: '#2a3450', pants: '#141a2b', shoes: '#0a0d17', tall: true, acc: 'badge' },
+
+  /* ===== Culling Game cast ===== */
+  hakari: { kind: 'human', hair: '#1e1e28', hair2: '#101018', style: 'spiky',
+    skin: '#f3c79c', skin2: '#cf9a70', eye: '#8a8a9a', top: '#141a2b', top2: '#0b0f1c',
+    trim: '#ffd24a', pants: '#141a2b', shoes: '#0a0d17', acc: 'badge', tall: true },
+  kirara: { kind: 'human', hair: '#2b1f3a', hair2: '#1a1226', style: 'long',
+    skin: '#f6cdb0', skin2: '#d3a081', eye: '#ff9ec4', top: '#3a2a4a', top2: '#241633',
+    trim: '#ff9ec4', pants: '#2a1b36', shoes: '#140a1c', acc: 'star' },
+  kashimo: { kind: 'human', hair: '#17171f', hair2: '#0c0c12', style: 'long',
+    skin: '#e8c09a', skin2: '#c0956f', eye: '#ff4fa3', top: '#1b2436', top2: '#0e1420',
+    trim: '#7fd9ff', pants: '#1b2436', shoes: '#0a0d17', acc: 'bolt', tall: true },
+  higuruma: { kind: 'human', hair: '#1b1b22', hair2: '#0d0d12', style: 'messy',
+    skin: '#e9c7a4', skin2: '#c29a77', eye: '#5a5a6a', top: '#2e3442', top2: '#1d2230',
+    trim: '#9aa6bb', pants: '#2e3442', shoes: '#15181f', acc: 'gavel', tall: true },
+  takaba: { kind: 'human', hair: '#3a2a1e', hair2: '#241a12', style: 'messy',
+    skin: '#f3c79c', skin2: '#cf9a70', eye: '#4a3a2a', top: '#c9542a', top2: '#8f3618',
+    trim: '#ffe14d', pants: '#2a3450', shoes: '#1a1f2b', acc: 'mic' },
+  angel: { kind: 'human', hair: '#f2ead2', hair2: '#cfc3a4', style: 'long',
+    skin: '#f8d9bc', skin2: '#d7ab8a', eye: '#7fd9ff', top: '#f0f3fb', top2: '#cfd6e6',
+    trim: '#ffd24a', pants: '#e3e8f2', shoes: '#b9c2d0', acc: 'wings', tall: true },
+  hana: { kind: 'human', hair: '#d8c9a8', hair2: '#b3a383', style: 'bob',
+    skin: '#f8d3b0', skin2: '#d9a782', eye: '#6aa8d8', top: '#141a2b', top2: '#0b0f1c',
+    trim: '#2a3450', pants: '#141a2b', shoes: '#0a0d17' },
+  yuta: { kind: 'human', hair: '#17171f', hair2: '#0c0c12', style: 'flat',
+    skin: '#f3c79c', skin2: '#cf9a70', eye: '#3a6a8a', top: '#141a2b', top2: '#0b0f1c',
+    trim: '#2a3450', pants: '#141a2b', shoes: '#0a0d17', acc: 'katana', tall: true },
+  maki: { kind: 'human', hair: '#1f3a2a', hair2: '#13241a', style: 'bob',
+    skin: '#f3c79c', skin2: '#cf9a70', eye: '#3a7a5a', top: '#141a2b', top2: '#0b0f1c',
+    trim: '#2a3450', pants: '#141a2b', shoes: '#0a0d17', acc: 'polearm', tall: true },
+  toji: { kind: 'human', hair: '#15151c', hair2: '#0a0a10', style: 'spiky',
+    skin: '#e8c09a', skin2: '#c0956f', eye: '#2a3a2a', top: '#17171f', top2: '#0c0c12',
+    trim: '#2a2a33', pants: '#17171f', shoes: '#0a0a10', acc: 'scar', tall: true },
+  junpei: { kind: 'human', hair: '#2a2630', hair2: '#17141d', style: 'messy',
+    skin: '#f0c49c', skin2: '#c9936d', eye: '#5a4a6a', top: '#3a3550', top2: '#242036',
+    trim: '#6b5a8a', pants: '#2a2636', shoes: '#141018', acc: 'hoodup' },
+  geto: { kind: 'human', hair: '#17171f', hair2: '#0c0c12', style: 'long',
+    skin: '#f0c49c', skin2: '#c9936d', eye: '#4a3a5a', top: '#2a2436', top2: '#191424',
+    trim: '#6b5a8a', pants: '#221c30', shoes: '#120e1a', tall: true },
+  reggie: { kind: 'human', hair: '#e8d9a8', hair2: '#bfae7e', style: 'flat',
+    skin: '#f3c79c', skin2: '#cf9a70', eye: '#6a5a3a', top: '#3a3a46', top2: '#24242e',
+    trim: '#d8d8e2', pants: '#3a3a46', shoes: '#1a1a22', acc: 'badge', tall: true },
+  charles: { kind: 'human', hair: '#2a1b14', hair2: '#17100b', style: 'spiky',
+    skin: '#8a5a3a', skin2: '#663f26', eye: '#3a2a1a', top: '#2a3450', top2: '#1a2234',
+    trim: '#ff8c00', pants: '#2a3450', shoes: '#141a22', acc: 'badge' },
+  megumiSukuna: { kind: 'human', hair: '#1b2130', hair2: '#0d111a', style: 'spiky',
+    skin: '#f3cfb4', skin2: '#cf9f80', eye: '#ff3b3b', top: '#1a1118', top2: '#0d080d',
+    trim: '#c1121f', pants: '#2a1b22', shoes: '#120a10', acc: 'sukuna', tall: true },
+  tengen: { kind: 'human', hair: '#cfc3e0', hair2: '#a295b8', style: 'long',
+    skin: '#e8d6c0', skin2: '#c0ad96', eye: '#9b4dff', top: '#3b2f4a', top2: '#241c30',
+    trim: '#9b4dff', pants: '#2a2136', shoes: '#140f1c' },
+  rika: { kind: 'rika' },
+  mahoraga: { kind: 'mahoraga' }
 };
 
 /* ---------- main actor draw ---------- */
@@ -91,6 +147,8 @@ function drawActor(name, x, y, u, o = {}) {
     case 'bug': drawBug(p, d, yo); break;
     case 'bigcurse': drawBigCurse(p, d, yo); break;
     case 'finger': drawFinger(p); break;
+    case 'rika': drawRika(p, yo); break;
+    case 'mahoraga': drawMahoraga(p, yo); break;
   }
   ctx.restore();
 }
@@ -198,6 +256,33 @@ function drawHuman(p, d, dir, step, yo, walking, o) {
   }
   if (d.acc === 'hammer') { p(13, by - 1, 1, 7, '#8a5a2a'); p(12, by - 2, 3, 2, '#b9c2d0'); }
   if (d.acc === 'badge') { p(5, by + 2, 2, 2, '#ffd24a'); }
+  if (d.acc === 'katana') {                       // Yuta's blade
+    p(14, by - 4, 1, 11, '#dfe6f2'); p(14, by - 5, 1, 1, '#ffffff');
+    p(13, by + 7, 3, 1, '#8a6a2a'); p(14, by + 8, 1, 3, '#3a2a1a');
+  }
+  if (d.acc === 'polearm') {                      // Maki's playful cursed tool
+    p(14, by - 7, 1, 18, '#4a3220'); p(13, by - 9, 3, 3, '#b9c2d0'); p(14, by - 10, 1, 1, '#ffffff');
+  }
+  if (d.acc === 'gavel') {                        // Higuruma
+    p(13, by + 3, 1, 5, '#4a3220'); p(12, by + 1, 3, 2, '#6b4a2a');
+  }
+  if (d.acc === 'star') {                         // Kirara
+    p(5, ht + 0, 1, 1, '#ffd24a'); p(10, ht + 0, 1, 1, '#ffd24a');
+    p(2, by + 2, 1, 1, '#ff9ec4'); p(13, by + 4, 1, 1, '#ff9ec4');
+  }
+  if (d.acc === 'bolt') {                         // Kashimo's electricity
+    for (let i = 0; i < 3; i++) {
+      p(1 + i, by - 2 + i * 2, 1, 1, '#7fd9ff'); p(14 - i, by - 3 + i * 2, 1, 1, '#7fd9ff');
+    }
+    p(7, by - 3, 2, 1, '#cfeeff');
+  }
+  if (d.acc === 'wings') {                        // Angel
+    p(0, by - 1, 3, 6, '#f6f8ff'); p(13, by - 1, 3, 6, '#f6f8ff');
+    p(1, by - 3, 2, 3, '#e3e8f2'); p(13, by - 3, 2, 3, '#e3e8f2');
+    p(6, ht - 2, 4, 1, '#ffd24a');
+  }
+  if (d.acc === 'scar') { p(10, ht + 6, 2, 1, '#b05a5a'); }
+  if (d.acc === 'mic') { p(13, by + 2, 1, 4, '#2a2a33'); p(12, by, 3, 2, '#9aa6bb'); }
   if (d.acc === 'sukuna') {
     p(4, by + 2, 8, 1, d.trim); p(4, by + 4, 8, 1, d.trim);
     p(2, by + 2, 2, 1, d.trim); p(12, by + 2, 2, 1, d.trim);
@@ -311,6 +396,31 @@ function drawBigCurse(p, d, yo) {
   p(2, 10 + yo, 12, 8, d.col); p(10, 10 + yo, 4, 8, d.col2);
   p(0, 11 + yo, 2, 5, d.col); p(14, 11 + yo, 2, 5, d.col2);
   p(3, 18 + yo, 4, 3, d.col2); p(9, 18 + yo, 4, 3, d.col2);
+}
+function drawRika(p, yo) {
+  const W1 = '#e9eef7', W2 = '#b9c4d6', D = '#2a1b33';
+  p(5, 0 + yo, 2, 4, W2); p(10, 0 + yo, 2, 4, W2);          // horns
+  p(3, 3 + yo, 10, 8, W1); p(2, 5 + yo, 12, 6, W1);
+  p(10, 4 + yo, 4, 7, W2);
+  p(4, 6 + yo, 2, 3, D); p(10, 6 + yo, 2, 3, D);            // hollow eyes
+  p(5, 6 + yo, 1, 1, '#ff3b3b'); p(10, 6 + yo, 1, 1, '#ff3b3b');
+  p(4, 10 + yo, 8, 2, '#f4f7fc');
+  for (let i = 0; i < 4; i++) p(5 + i * 2, 10 + yo, 1, 2, D);
+  p(2, 12 + yo, 12, 7, W1); p(10, 12 + yo, 4, 7, W2);
+  p(0, 13 + yo, 2, 4, W1); p(14, 13 + yo, 2, 4, W2);
+  p(4, 19 + yo, 3, 2, W2); p(9, 19 + yo, 3, 2, W2);
+}
+function drawMahoraga(p, yo) {
+  const D = '#1b1b24', D2 = '#0e0e14', BONE = '#d9cfc0';
+  p(5, 0 + yo, 6, 2, BONE);                                  // the wheel
+  p(4, 1 + yo, 8, 3, BONE); p(6, 2 + yo, 1, 1, D2); p(9, 2 + yo, 1, 1, D2);
+  p(3, 4 + yo, 10, 6, D); p(9, 4 + yo, 4, 6, D2);
+  p(4, 6 + yo, 2, 2, '#ff3b3b'); p(10, 6 + yo, 2, 2, '#ff3b3b');
+  p(4, 9 + yo, 8, 1, BONE);
+  p(2, 10 + yo, 12, 8, D); p(10, 10 + yo, 4, 8, D2);
+  p(0, 11 + yo, 2, 6, D); p(14, 11 + yo, 2, 6, D2);
+  p(3, 12 + yo, 10, 1, BONE); p(3, 15 + yo, 10, 1, BONE);
+  p(3, 18 + yo, 4, 3, D2); p(9, 18 + yo, 4, 3, D2);
 }
 function drawFinger(p) {
   p(6, 6, 4, 12, '#d8bfa8'); p(9, 6, 2, 12, '#b89a80');

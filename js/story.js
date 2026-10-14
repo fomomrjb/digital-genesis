@@ -935,3 +935,420 @@ const CHALLENGES = [
   { id: 'ch_king', title: 'Rematch: King of Curses', desc: 'He is bored of you. Bore him again.',
     eid: 'sukuna', pay: 4000, minLv: 25 }
 ];
+
+/* ===========================================================
+   MISSION BUILDER
+   Most missions are the same shape: walk in, cutscene, cross the
+   area, fight, cutscene, complete. M() builds one from data.
+   =========================================================== */
+function M(c) {
+  return {
+    id: c.id, title: c.title, area: c.area, minLv: c.minLv,
+    objective: c.objective, xp: c.xp || 0, money: c.money || 0, cfg: c,
+    setup() {
+      const A = AREAS[c.area];
+      A.ents = (typeof c.ents === 'function' ? c.ents() : (c.ents || [])).slice();
+      if (c.boss) {
+        const w = A.w || W;
+        A.ents.push({
+          type: 'trigger', x: c.tx != null ? c.tx : w - 150, y: 140, w: 100, h: 340,
+          once: true, flag: c.id + '_boss', fn: () => Story.runMission(c)
+        });
+      }
+    },
+    run() {
+      const sp = c.spawn || AREAS[c.area].spawn || [80, 360];
+      Over.enter(c.area, sp[0], sp[1]);
+      Over.locked = true;
+      cutscene([c.intro || [], { fn: () => { Over.locked = false; if (c.onIntro) c.onIntro(); } }]);
+    }
+  };
+}
+
+/* run a mission's fight chain, then its closing scene */
+Story.runMission = function (c) {
+  const fights = Array.isArray(c.boss) ? c.boss : [c.boss];
+  let i = 0;
+  const after = () => {
+    const sp = c.endSpawn || c.spawn || AREAS[c.area].spawn || [80, 360];
+    Over.enter(c.area, sp[0], sp[1]);
+    Over.locked = true;
+    cutscene([c.outro || [], { fn: () => { if (c.onEnd) c.onEnd(); Story.complete(c.reward); } }]);
+  };
+  const nextFight = () => {
+    if (i >= fights.length) { after(); return; }
+    const f = fights[i++];
+    const go = () => Game.battle(f.eid, Object.assign({
+      bg: AREAS[c.area].bg, boss: f.boss !== false, canFlee: false, onWin: nextFight
+    }, f.opts || {}));
+    if (f.pre) cutscene([f.pre, { fn: go }]); else go();
+  };
+  cutscene([c.pre || [], { fn: nextFight }]);
+};
+
+/* ===========================================================
+   CHAPTER 1 - the arcs that were missing
+   =========================================================== */
+const CH1_EXTRA = [
+
+M({ id: 'junpei', title: 'Vs. Mahito: Junpei', area: 'theatre', minLv: 6,
+  objective: 'Someone has been folding a boy into a weapon.', xp: 360, money: 520,
+  spawn: [80, 380],
+  ents: [{ type: 'sign', x: 240, y: 340, text: 'A half-finished drink. A dropped phone. The film is still running for nobody.' }],
+  intro: [
+    { who: 'narr', t: 'A cinema in the middle of a Tuesday. Everyone in screen three is dead except one boy, and the boy is not surprised.' },
+    ['yuji', 'Junpei! Hey — Junpei, it’s me!'],
+    ['kenji', 'Yuji, don’t. Look at his data.'],
+    ['kenji', 'Someone has been writing to him. For weeks. Little edits, every day, until the file stopped looking like him.'],
+    ['yuji', '...Who.'],
+    ['kenji', 'The stitched one. He’s still here. He’s watching us read it.'],
+    { who: 'sys', t: 'Head to the front of the screen.' }
+  ],
+  boss: [{ eid: 'junpeiMahito', pre: [
+    ['mahito', 'Do you like him? I made him myself.'],
+    ['mahito', 'Humans fold so easily. You push once in the right year and they fold forever.'],
+    ['kenji', 'You didn’t make him. You edited him. Those are different and you know they’re different.'],
+    ['mahito', 'Oh! The little one is ANGRY.'],
+    ['orange', 'kenji. kenji your hands are shaking.'],
+    ['kenji', 'I know.']
+  ] }],
+  outro: [
+    { who: 'narr', t: 'Mahito leaves the way smoke leaves. Junpei is still breathing, which is more than this day owed anybody.' },
+    ['kenji', 'I pulled a backup. It’s... not all of him. The overwritten parts are gone.'],
+    ['yuji', 'He’s alive?'],
+    ['kenji', 'He’s alive.'],
+    ['kenji', 'I don’t like this technique very much today.'],
+    ['orange', '...you want a snack?'],
+    ['kenji', 'Yeah.'],
+    { fn: () => { G.flags.copy_transfig = true; G.codex.mahito = true; } },
+    { who: 'sys', t: 'TECHNIQUE WITNESSED: IDLE TRANSFIGURATION' }
+  ] }),
+
+M({ id: 'deathpaintings', title: 'Death Painting Brothers', area: 'bridge', minLv: 9,
+  objective: 'Two more wombs hatched. Their blood is poison.', xp: 480, money: 700,
+  spawn: [70, 350],
+  ents: [{ type: 'chest', x: 420, y: 330, id: 'dp1', money: 420, item: 'battery' }],
+  intro: [
+    { who: 'narr', t: 'The river path again, and two of them waiting on it.' },
+    ['nobara', 'They’re BROTHERS? Of course they’re brothers.'],
+    ['kenji', 'Their blood carries a decay script. Don’t let it touch you — it keeps running after contact.'],
+    ['nobara', 'And how do you know that?'],
+    ['kenji', 'I read it. That’s the whole thing I do, Nobara.'],
+    { who: 'sys', t: 'Head east.' }
+  ],
+  boss: [
+    { eid: 'eso', pre: [['curse', '"Brother. It is a child."'], ['curse', '"Then it will be a short afternoon."']] },
+    { eid: 'choso', pre: [
+      { who: 'narr', t: 'The air behind them opens and something older steps through it, and it has just watched its brothers die.' },
+      ['narr', 'CHOSO. The eldest Death Painting.'],
+      ['kenji', 'Oh. He’s not like them. He’s got a full soul directory.'],
+      ['orange', 'kenji he is CRYING.'],
+      ['kenji', 'I know.']
+    ] }
+  ],
+  outro: [
+    { who: 'narr', t: 'Choso breaks away and does not run — he withdraws, the way someone leaves a grave.' },
+    ['choso', '"I will remember you, administrator."'],
+    ['kenji', 'Everyone keeps saying that like it’s a nice thing.'],
+    { fn: () => { G.flags.copy_blood = true; } },
+    { who: 'sys', t: 'TECHNIQUE WITNESSED: BLOOD MANIPULATION' }
+  ] }),
+
+M({ id: 'mechamaru', title: 'The Traitor', area: 'arena_kyoto', minLv: 12,
+  objective: 'Somebody inside Jujutsu High has been talking to curses.', xp: 560, money: 820,
+  spawn: [320, 400], tx: 290,
+  intro: [
+    { who: 'narr', t: 'The goodwill event never finished. Halfway through, the barrier posts went down from the inside.' },
+    ['megumi', 'The veil was opened by a sorcerer. One of ours.'],
+    ['kenji', 'Mechamaru. The puppet.'],
+    ['nobara', 'You can’t just SAY that —'],
+    ['kenji', 'His signal has a second endpoint. It’s been relaying to something that isn’t human for about a year.'],
+    ['kenji', 'He didn’t hide it well. I don’t think he wanted to.'],
+    { who: 'sys', t: 'Step into the arena circle.' }
+  ],
+  boss: [{ eid: 'mechamaru', pre: [
+    ['narr', '"Ultimate Mechamaru: Mode — Absolute."'],
+    ['narr', '"I made a deal with a curse. It gave me a body that works, for one day."'],
+    ['narr', '"I am spending the day on you. Forgive me."'],
+    ['kenji', 'I’m not going to forgive you. But I get it.']
+  ] }],
+  outro: [
+    { who: 'narr', t: 'The puppet comes apart. Somewhere in a hospital room, a boy who has never walked finishes his one good day.' },
+    ['kenji', '...He traded a real body for a day of being useful.'],
+    ['orange', 'thats the saddest contract i have ever read.'],
+    ['kenji', 'Yeah.'],
+    { fn: () => { G.codex.binding = true; } }
+  ] }),
+
+M({ id: 'hiddeninventory', title: 'Hidden Inventory', area: 'past_tokyo', minLv: 15,
+  objective: 'A memory that is not yours. Twelve years ago.', xp: 700, money: 1000,
+  spawn: [70, 360],
+  intro: [
+    { who: 'sys', t: 'TENGEN BARRIER ARCHIVE — PLAYBACK\nYou are reading a memory off the world’s backup server. It is not yours.' },
+    { who: 'narr', t: 'Twelve years ago. Two sixteen-year-olds are escorting a girl called Riko Amanai to her own erasure, and neither of them has decided how they feel about that yet.' },
+    ['gojo', '"Relax! Nobody can touch us. I’m the strongest."'],
+    ['geto', '"You say that every single day."'],
+    ['kenji', 'Orange, who is that with the long hair?'],
+    ['orange', '...kenji thats the guy from the shibuya broadcast. thats the body anyway.'],
+    ['kenji', 'He’s smiling. He looks like somebody’s friend.'],
+    { who: 'sys', t: 'Follow the memory east.' }
+  ],
+  boss: [{ eid: 'toji', pre: [
+    { who: 'narr', t: 'A man steps out of the stairwell with no cursed energy at all. Not low. None. The world does not register him as a sorcerer because he is not one.' },
+    ['narr', 'TOJI FUSHIGURO. The Sorcerer Killer.'],
+    ['kenji', 'He has no data.'],
+    ['orange', 'what do you mean no data'],
+    ['kenji', 'I mean there is nothing to read. No technique, no output, no file. He’s just a person who is better at this than everyone.'],
+    ['kenji', '...That’s terrifying. That’s so much worse than a special grade.']
+  ] }],
+  outro: [
+    { who: 'narr', t: 'The memory stutters and skips the ending, the way the people who lived it have been skipping it for twelve years.' },
+    ['kenji', 'He killed her. And then the white-haired one came back and killed him, and nothing about that fixed anything.'],
+    ['orange', 'why are we watching this'],
+    ['kenji', 'Because the stitched man wrote this file, Orange. He kept it.'],
+    ['kenji', 'He keeps everything he breaks.'],
+    { fn: () => { G.codex.binding = true; G.flags.copy_iframes = true; } }
+  ] }),
+
+M({ id: 'prematuredeath', title: 'Premature Death', area: 'past_tokyo', minLv: 16,
+  objective: 'The day Suguru Geto stopped being somebody’s friend.', xp: 760, money: 1100,
+  spawn: [70, 360],
+  intro: [
+    { who: 'narr', t: 'The memory continues, a year later, and the boy with the long hair has stopped laughing at his friend’s jokes.' },
+    ['geto', '"Are monkeys worth protecting, Satoru?"'],
+    ['gojo', '"...Say that again."'],
+    ['geto', '"We bleed for people who would hand us over for a quiet night. I am asking an honest question."'],
+    ['kenji', 'He’s not wrong about the facts. He’s just wrong about what you do with them.'],
+    ['orange', 'thats the most grown-up thing you have ever said'],
+    ['kenji', 'I’m twelve, not stupid.'],
+    { who: 'sys', t: 'Follow it to the end.' }
+  ],
+  boss: [{ eid: 'getoPast', pre: [
+    ['geto', '"A thousand curses in my throat and a hundred villages behind me."'],
+    ['geto', '"Night Parade of a Hundred Demons."'],
+    ['kenji', 'Orange, log all of this. Every curse he’s carrying.'],
+    ['orange', 'why'],
+    ['kenji', 'Because somebody is wearing his body right now and I want to know what’s still in it.']
+  ] }],
+  outro: [
+    { who: 'sys', t: 'PLAYBACK ENDS.\nARCHIVE NOTE: subject SUGURU GETO executed by SATORU GOJO, December 24th.\nBODY NOT RECOVERED.' },
+    ['kenji', 'Body not recovered.'],
+    ['kenji', 'Of course it wasn’t.'],
+    { fn: () => { G.codex.cullinggame = true; } }
+  ] }),
+
+M({ id: 'perfectprep', title: 'Perfect Preparation', area: 'forest', minLv: 18,
+  objective: 'The higher-ups have ordered an execution. Yours is on the same page.', xp: 820, money: 1200,
+  spawn: [70, 360],
+  ents: [{ type: 'npc', x: 300, y: 350, spr: 'yuji', name: 'YUJI', u: 3, col: '#ff8fa3',
+    lines: [['yuji', 'They signed a piece of paper that says I should be dead. Again.'],
+            ['yuji', 'Honestly? Third time. You get used to the paperwork.']] }],
+  intro: [
+    { who: 'narr', t: 'The higher-ups have issued an execution order for Yuji Itadori, and sent the one person at this school who could carry it out.' },
+    ['megumi', 'They sent Okkotsu.'],
+    ['kenji', 'The one with the cursed spirit.'],
+    ['megumi', 'The one with the cursed spirit who loves him. Yes.'],
+    ['kenji', 'My order came through too, by the way. Second page.'],
+    ['megumi', 'What?'],
+    ['kenji', '"Anomalous self-awakened special grade, unaligned, uncontainable." They’re not wrong either.'],
+    ['orange', 'can i eat the higher ups'],
+    ['kenji', 'Not yet.'],
+    { who: 'sys', t: 'He is waiting in the clearing. Try not to kill him — you can SPARE him.' }
+  ],
+  boss: [{ eid: 'yutaDuel', pre: [
+    ['narr', 'YUTA OKKOTSU. Special grade. Copy technique, cursed tool, and a girl behind him that nobody else can see properly.'],
+    ['narr', '"I was ordered to execute Yuji Itadori."'],
+    ['narr', '"...And a twelve-year-old. They put a twelve-year-old on the same order."'],
+    ['kenji', 'Yeah, I thought that was rude too.'],
+    ['narr', '"Let me see what you are first. Rika."']
+  ] }],
+  outro: [
+    { who: 'narr', t: 'Yuta lowers the sword, which is the single most dangerous thing anyone has done all week.' },
+    ['narr', '"I am going to write that the order was carried out."'],
+    ['kenji', 'You’re going to lie to the higher-ups.'],
+    ['narr', '"I am going to file an inaccurate report. Yes."'],
+    ['kenji', 'Oh, I like you. Orange, I like him.'],
+    ['orange', 'he has a GHOST GIRLFRIEND kenji. thats so cool. thats SO cool.'],
+    { fn: () => { G.flags.copy_purelove = true; giveSkin('highschool'); } },
+    { who: 'sys', t: 'TECHNIQUE WITNESSED: PURE LOVE WHIP' }
+  ] }),
+
+M({ id: 'prisonrealm', title: 'Shibuya: The Prison Realm', area: 'shibuya', minLv: 19,
+  objective: 'They have come for Gojo.', xp: 900, money: 1400,
+  spawn: [70, 350], tx: 1560,
+  ents: [{ type: 'save', x: 240, y: 330 }],
+  intro: [
+    { who: 'narr', t: 'Deep in the station, four special grades are standing around a plain black cube, and the strongest man alive is walking into the middle of them on purpose.' },
+    ['kenji', 'Orange, what is that box.'],
+    ['orange', 'i cant read it. kenji i CANT READ IT. its not a file, its a HOLE.'],
+    ['kenji', 'Gojo. GOJO, don’t —'],
+    { who: 'narr', t: 'There are a hundred civilians between Kenji and that platform, and every one of them was placed there on purpose.' },
+    { who: 'sys', t: 'GET THROUGH THE CROWD. EAST.' }
+  ],
+  boss: [{ eid: 'jogoShibuya', pre: [
+    ['jogo', '"You are not going down there, little monkey."'],
+    ['kenji', 'Move.'],
+    ['jogo', '"No."']
+  ] }],
+  outro: [
+    { fn: () => { Audio.stop(); Audio.sfx('shatter'); FX.flash('#fff', .5, 1); FX.glitch(.8); } },
+    { who: 'narr', t: 'He is eleven seconds too late.' },
+    { who: 'sys', t: 'ENTITY: SATORU GOJO\nSTATUS: NOT FOUND\nLAST KNOWN CONTAINER: PRISON REALM (SEALED)' },
+    ['kenji', '...'],
+    ['kenji', 'Orange. Open it.'],
+    ['orange', 'i cant'],
+    ['kenji', 'Orange, OPEN IT.'],
+    ['orange', 'KENJI I CANT. its not locked. theres no lock to turn off. its a SHAPE. the shape IS the prison.'],
+    { who: 'narr', t: 'Kenji Sato stands in a subway station holding a box he cannot read, and for the first time since he was ten years old, the world does not look like code to him. It just looks like a box.' },
+    ['kenji', 'Okay.'],
+    ['kenji', 'Okay. Then we do tonight without him.'],
+    { fn: () => { G.flags.gojo_sealed = true; } }
+  ] }),
+
+M({ id: 'overtime', title: 'Shibuya: Overtime', area: 'shibuya', minLv: 21,
+  objective: '7:03 PM. Nanami is still working.', xp: 1000, money: 1500,
+  spawn: [70, 350], tx: 1600,
+  ents: [{ type: 'npc', x: 300, y: 350, spr: 'nanami', name: 'NANAMI', u: 3, col: '#e3c98a',
+    lines: [['nanami', 'There are three hundred civilians on the lower platform and four of us.'],
+            ['nanami', 'Do the arithmetic yourself. I am tired of saying it out loud.']] }],
+  intro: [
+    { who: 'narr', t: 'The station has become a long night with no end written into it.' },
+    ['nanami', 'Kenji. Go up to the surface.'],
+    ['kenji', 'No.'],
+    ['nanami', 'That was not a request from a colleague. It was one from an adult.'],
+    ['kenji', 'I formatted a special grade out of existence six hours ago.'],
+    ['nanami', '...'],
+    ['nanami', 'Then stay where I can see you. And eat something.'],
+    { who: 'sys', t: 'Clear the platform. East.' }
+  ],
+  boss: [{ eid: 'nobaraFight' }, { eid: 'mahito', opts: { hpScale: .7 }, pre: [
+    ['mahito', 'The little administrator! And the tired man! And the girl with the hammer!'],
+    ['mahito', 'I have been having the BEST night.'],
+    ['nanami', 'Kenji. Whatever you are going to do, do it now.']
+  ] }],
+  outro: [
+    { who: 'narr', t: 'Mahito scatters before the formatting completes. He does that. It is the single most annoying thing about him.' },
+    ['nanami', '...You got him off us.'],
+    ['kenji', 'I got him off you. He’s not gone.'],
+    ['nanami', 'It will do.'],
+    { who: 'narr', t: 'Nanami straightens his tie with two fingers, the way he does when he has decided something privately.' },
+    ['nanami', 'Kenji. When this is over, I am going to take you to get a proper meal. Not candy. A meal.'],
+    ['kenji', 'Okay.'],
+    ['nanami', 'That is a promise, so you will have to survive it.'],
+    { fn: () => { G.flags.nanami_promise = true; } }
+  ] }),
+
+M({ id: 'sukunarampage', title: 'Shibuya: Stand Proud', area: 'shibuya', minLv: 23,
+  objective: 'Something took the wheel and it is not Yuji.', xp: 1200, money: 1800,
+  spawn: [70, 350], tx: 1620,
+  intro: [
+    { who: 'narr', t: 'Yuji Itadori has been down for ninety seconds, and the thing wearing him is standing up with the wrong smile on.' },
+    ['sukuna', '"Ah. Air."'],
+    ['kenji', 'Orange, get behind me.'],
+    ['orange', 'im a PUMPKIN kenji theres no behind'],
+    { who: 'narr', t: 'Sukuna looks across the platform at a volcano-headed curse who has spent all night telling everyone he is the strongest thing here.' },
+    ['sukuna', '"You. You were loud earlier."'],
+    { who: 'sys', t: 'East. Quickly.' }
+  ],
+  boss: [{ eid: 'mahoragaC1', pre: [
+    { who: 'narr', t: 'Jogo does not survive the next forty seconds. Nothing on the platform does, except the three things still standing in the smoke.' },
+    { who: 'narr', t: 'And then Megumi, bleeding, out of options, draws the one shikigami he has never beaten.' },
+    ['megumi', '"With this treasure, I summon —"'],
+    ['kenji', 'Megumi, DON’T —'],
+    { who: 'narr', t: 'DIVINE GENERAL MAHORAGA. The wheel on its head begins to turn.' },
+    ['orange', 'kenji that thing ADAPTS. it adapts to ANYTHING. including us. INCLUDING US.'],
+    ['kenji', 'Then I’ll have to be a different thing every time I hit it.']
+  ] }],
+  outro: [
+    { who: 'narr', t: 'The wheel stops turning. Mahoraga falls, and the sound it makes is the sound of a building deciding to sit down.' },
+    ['kenji', '*panting* It adapted to Null. It adapted to Null, Orange.'],
+    ['orange', 'nothing adapts to null. null is the DELETE KEY.'],
+    ['kenji', 'I know.'],
+    ['kenji', 'So tomorrow I need to be scarier than the delete key.'],
+    { fn: () => { G.flags.copy_mahoraga = true; G.codex.sukuna = true; } },
+    { who: 'sys', t: 'TECHNIQUE WITNESSED: WORLD-CUTTING SLASH' }
+  ] })
+];
+
+/* ===========================================================
+   CHAPTER 1 - final running order
+   =========================================================== */
+const CH1_ORDER = [
+  'prologue', 'recruit', 'orientation', 'first', 'junpei', 'womb', 'bridge',
+  'deathpaintings', 'goodwill', 'hanami', 'mechamaru', 'hiddeninventory',
+  'prematuredeath', 'perfectprep', 'shibuya1', 'prisonrealm', 'shibuya2',
+  'overtime', 'shibuya3', 'sukunarampage', 'shinjuku', 'culling'
+];
+const CH1_LV = {
+  prologue: 1, recruit: 3, orientation: 4, first: 5, junpei: 6, womb: 7, bridge: 8,
+  deathpaintings: 9, goodwill: 10, hanami: 11, mechamaru: 12, hiddeninventory: 14,
+  prematuredeath: 15, perfectprep: 17, shibuya1: 18, prisonrealm: 19, shibuya2: 20,
+  overtime: 21, shibuya3: 22, sukunarampage: 24, shinjuku: 26, culling: 30
+};
+(function buildChapter1() {
+  const byId = {};
+  MISSIONS.concat(CH1_EXTRA).forEach(m => { byId[m.id] = m; });
+  const ordered = CH1_ORDER.map(id => byId[id]).filter(Boolean);
+  ordered.forEach(m => { if (CH1_LV[m.id] != null) m.minLv = CH1_LV[m.id]; });
+  MISSIONS.length = 0;
+  Array.prototype.push.apply(MISSIONS, ordered);
+})();
+
+/* ---------- chapter-aware controller ---------- */
+Story.list = function () {
+  const c = (typeof CHAPTERS !== 'undefined' && CHAPTERS[(G.chapter || 1) - 1]);
+  return (c && c.missions) || MISSIONS;
+};
+Story.objective = function () {
+  const m = this.list()[G.mission];
+  return m ? m.objective : '';
+};
+Story.cur = function () { return this.list()[G.mission]; };
+Story.begin = function () { G.chapter = 1; G.mission = 0; this.jumpTo(0); };
+Story.startChapter = function (n) {
+  G.chapter = n; G.mission = 0;
+  const first = this.list()[0];
+  if (first) this.ensureLevel(first.minLv, true);
+  this.jumpTo(0);
+};
+Story.jumpTo = function (n, ch) {
+  if (ch) G.chapter = ch;
+  const L = this.list();
+  G.mission = clamp(n, 0, L.length - 1);
+  const m = L[G.mission];
+  FX.clear(); timers.clear();
+  Battle.active = false; DomainFight.active = false; OrangeFight.active = false;
+  Shop.open = false; Menu.open = false; Dlg.active = false;
+  this.ensureLevel(m.minLv, true);
+  Game.mode = 'over';
+  m.setup();
+  m.run();
+};
+Story.complete = function (extra) {
+  const L = this.list();
+  const m = L[G.mission];
+  if (!m) return;
+  G.completed[m.id] = true;
+  const xp = (m.xp || 0) + ((extra && extra.xp) || 0);
+  const money = (m.money || 0) + ((extra && extra.money) || 0);
+  G.gainMoney(money);
+  const ups = G.gainXP(xp);
+  this.syncUnlocks();
+  Toast.show('MISSION COMPLETE  +' + xp + ' EXP  +$' + fmt(money), PAL.green, 4);
+  G.save();
+  if (ups.length) LevelUp.trigger(ups);
+  const nextN = G.mission + 1;
+  timers.after(.6, () => {
+    const go = () => {
+      if (LevelUp.busy()) { timers.after(.4, go); return; }
+      if (nextN < L.length) { Fade.out(() => { Story.jumpTo(nextN); Fade.in(); }, 2); }
+      else { Story.endOfChapter(); }
+    };
+    go();
+  });
+};
+Story.endOfChapter = function () {
+  if ((G.chapter || 1) >= CHAPTERS.length) { G.flags.game_done = true; G.save(); Game.toCredits(); return; }
+  G.flags['ch' + G.chapter + '_done'] = true; G.save();
+  Game.toCredits();
+};

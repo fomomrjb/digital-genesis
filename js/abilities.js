@@ -90,6 +90,41 @@ const ABILITIES = [
     type: 'domain', domain: 'void404', cost: 0, focus: 50, col: '#00ffa6', colD: '#00603f',
     tag: 'DOMAIN', branch: 'Domain Expansion',
     desc: 'Sure-hit Null injected into the soul. 3s: senses gone. 10s: technique uninstalled. 30s: body becomes pixelated smoke.' }
+,
+
+  /* ============ CHAPTER 2 : deeper access ============ */
+  { id: 'nullzone', name: 'Null Zone', jp: 'ヌル・ゾーン', kanji: '零域', lv: 33, type: 'debuff',
+    cost: 0, col: '#00ffa6', colD: '#00603f', sfx: 'null',
+    tag: 'NULLIFY+', branch: 'Digital Genesis', turns: 3,
+    desc: 'Stop nullifying one value and nullify the whole room: gravity, friction, their muscle memory. Three turns of a target that cannot reliably stand up.' },
+  { id: 'skyline', name: 'Absolute Solver: Skyline', jp: 'アブソリュート・ソルバー：摩天楼', kanji: '塔', lv: 37, type: 'attack',
+    cost: 0, power: 3.2, col: '#3ddcff', colD: '#0a4a66', sfx: 'bigslam',
+    tag: 'HEAVY+', branch: 'Digital Genesis', aoe: true,
+    desc: 'Deconstruct an entire city block into voxels and reassemble the whole thing as one descending spear.' },
+  { id: 'packetloss', name: 'Lag Spike: Packet Loss', jp: 'パケットロス', kanji: '断', lv: 41, type: 'debuff',
+    cost: 0, col: '#ffe14d', colD: '#8a7a10', sfx: 'glitch',
+    tag: 'CONTROL+', branch: 'Digital Genesis', turns: 3,
+    desc: 'Drop their packets entirely. Two turns gone, and they rubberband back to where they stood when it started.' },
+  { id: 'soultrade', name: 'Asset Flip: Soul Trade', jp: 'ソウル・トレード', kanji: '魂換', lv: 45, type: 'special',
+    cost: 0, col: '#ff4fa3', colD: '#8a1b4a', sfx: 'warp',
+    tag: 'SWAP+', branch: 'Digital Genesis',
+    desc: 'Swap health percentages outright. If you are nearly dead and they are not, that is their problem now.' },
+  { id: 'bindingvow', name: 'Binding Vow: Overclock', jp: '束縛の誓約', kanji: '縛', lv: 49, type: 'buff',
+    cost: 0, col: '#ff3b3b', colD: '#5c0a0a', sfx: 'charge',
+    tag: 'RISK', branch: 'Digital Genesis', turns: 99,
+    desc: 'A contract with the world: give up half your maximum HP for the rest of this fight, receive triple output. There is no taking it back.' },
+  { id: 'dualdomain', name: 'Dual Domain', jp: '二重領域展開', kanji: '双', lv: 53, type: 'domain',
+    domain: 'dual', cost: 0, focus: 100, col: '#ffffff', colD: '#6b4a00',
+    tag: 'DOMAIN++', branch: 'Domain Expansion',
+    desc: 'Nobody in history has held two barriers at once. Sandbox Mode writes the rules while Error 404 formats whatever is standing inside them.' },
+  { id: 'adminban', name: 'Orange Admin Ban', jp: 'オレンジ・バン', kanji: '追放', lv: 57, type: 'special',
+    cost: 0, col: '#ff8c00', colD: '#b25a00', sfx: 'shatter',
+    tag: 'ULTRA', branch: 'ORANGE Suite', once: true,
+    desc: 'Orange revokes their right to be in the session at all. Instantly deletes a target already below a quarter health. One use per fight.' },
+  { id: 'orangeflash2', name: 'Orange Flash: Full Release', jp: '橙閃・全開', kanji: '全開', lv: 60, type: 'attack',
+    cost: 0, power: 3.2, hits: 9, col: '#ff8c00', colD: '#b25a00', sfx: 'orangeflash',
+    tag: 'FINAL', branch: 'ORANGE Suite', once: true,
+    desc: 'Orange stops holding the engine file at arm\'s length and pushes the whole thing through your fist. Nine hits. Land them all.' }
 ];
 
 const AB = {};
@@ -106,7 +141,15 @@ const MILESTONES = {
   17: ['blackflash'],
   20: ['d_sandbox'],
   25: ['d_404'],
-  30: ['orangeflash']
+  30: ['orangeflash'],
+  33: ['nullzone'],
+  37: ['skyline'],
+  41: ['packetloss'],
+  45: ['soultrade'],
+  49: ['bindingvow'],
+  53: ['dualdomain'],
+  57: ['adminban'],
+  60: ['orangeflash2']
 };
 
 /* flavour text Orange screams in Kenji's head when something unlocks */
@@ -121,7 +164,15 @@ const UNLOCK_HYPE = {
   blackflash: 'ORANGE: "0.000001 SECONDS. THE SPACE WENT CRUNCH. I SAW IT."',
   d_sandbox: 'ORANGE: "CREATIVE MODE BUT ITS A WAR CRIME. im so proud."',
   d_404:     'ORANGE: "...kenji. that one deletes people. for real. ok cool."',
-  orangeflash: 'ORANGE: "this is MY move. 100 black flashes in one punch. SWING IT."'
+  orangeflash: 'ORANGE: "this is MY move. 100 black flashes in one punch. SWING IT."',
+  nullzone:   'ORANGE: "delete the FLOOR. delete GRAVITY. delete his ABILITY TO STAND."',
+  skyline:    'ORANGE: "throw a BUILDING. you can throw a BUILDING now."',
+  packetloss: 'ORANGE: "999 ping. he is playing on a potato. a SOUL potato."',
+  soultrade:  'ORANGE: "just give him your injuries. thats allowed. i checked."',
+  bindingvow: 'ORANGE: "...kenji thats a real contract. the world SIGNED it. be careful."',
+  dualdomain: 'ORANGE: "TWO. TWO BARRIERS. nobody has EVER. kenji nobody has EVER."',
+  adminban:   'ORANGE: "i am removing him from the session. personally. with my hands."',
+  orangeflash2: 'ORANGE: "no more holding back. give me your fist. GIVE ME YOUR FIST."'
 };
 
 function abilityList(filterFn) { return ABILITIES.filter(filterFn); }

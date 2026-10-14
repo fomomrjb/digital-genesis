@@ -674,3 +674,220 @@ AREAS.culling = {
   solids: [{ x: 0, y: 0, w: 640, h: 244 }],
   ents: []
 };
+
+/* ===========================================================
+   CHAPTER 1 EXTRA + CHAPTER 2 AREAS
+   =========================================================== */
+
+AREAS.theatre = {
+  name: 'CINEMA — SCREEN 3', music: 'shibuya', bg: 'subway',
+  w: 640, h: 480, spawn: [80, 380],
+  draw(t) {
+    rect(0, 0, 640, 480, '#0a0710');
+    rect(60, 40, 520, 200, '#0d0d12');
+    frameRect(60, 40, 520, 200, '#2a1b2a', 4);
+    // the film still running
+    ctx.save(); ctx.globalAlpha = .5 + Math.sin(t * 9) * .08;
+    rect(70, 50, 500, 180, '#1a1424');
+    for (let i = 0; i < 9; i++) rect(90 + ((i * 71 + (t * 40 | 0)) % 460), 70 + (i * 23) % 140, 30, 10, '#3a2a4a');
+    ctx.restore();
+    groundTiles(0, 250, 640, 230, '#2a1420', '#231018', 32);
+    // rows of seats
+    for (let r = 0; r < 4; r++)
+      for (let c = 0; c < 10; c++)
+        rect(20 + c * 62, 300 + r * 46, 44, 34, r % 2 ? '#4a1f2e' : '#3e1826');
+    rect(0, 246, 640, 4, '#4a1f2e');
+  },
+  solids: [{ x: 0, y: 0, w: 640, h: 250 }],
+  ents: []
+};
+
+AREAS.past_tokyo = {
+  name: 'OKINAWA — TWELVE YEARS AGO', music: 'high', bg: 'city',
+  w: 1280, h: 480, spawn: [70, 360],
+  draw(t) {
+    rect(0, 0, 1280, 480, '#10203a');
+    dither(0, 0, 1280, 220, '#10203a', '#2a4a7a', .3);
+    // sun low over the sea
+    circle(980, 150, 54, '#ffb347');
+    rect(0, 220, 1280, 120, '#1d4a6b');
+    for (let i = 0; i < 50; i++) {
+      const x = (i * 53 + (t * 22 | 0)) % 1280;
+      rect(x, 232 + (i * 17) % 100, 26, 2, '#2f6a92');
+    }
+    // beach
+    groundTiles(0, 330, 1280, 150, '#c9b183', '#bda575', 40);
+    rect(0, 326, 1280, 5, '#e3d2a8');
+    for (let i = 0; i < 26; i++) rect((i * 97) % 1280, 350 + (i * 61) % 110, 7, 4, '#a8906a');
+  },
+  solids: [{ x: 0, y: 0, w: 1280, h: 330 }],
+  deco: [{ k: 'tree', x: 200, y: 280, u: 4 }, { k: 'tree', x: 1020, y: 290, u: 4 }],
+  ents: []
+};
+
+AREAS.tengen = {
+  name: "TENGEN'S CHAMBER", music: 'domain', bg: 'school',
+  w: 640, h: 480, spawn: [320, 400],
+  draw(t) {
+    rect(0, 0, 640, 480, '#0b0814');
+    // barrier lattice
+    ctx.save(); ctx.globalAlpha = .4;
+    for (let i = 0; i < 10; i++) {
+      const r = 50 + i * 40 + Math.sin(t + i) * 6;
+      ctx.strokeStyle = i % 2 ? '#9b4dff' : '#3ddcff'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.ellipse(320, 200, r, r * .5, 0, 0, TAU); ctx.stroke();
+    }
+    ctx.restore();
+    groundTiles(0, 300, 640, 180, '#1d1830', '#171326', 32);
+    rect(0, 296, 640, 4, '#9b4dff');
+    // the throne
+    rect(270, 180, 100, 120, '#2a2140'); rect(260, 170, 120, 16, '#3a2f55');
+    for (let i = 0; i < 24; i++) {
+      const a = (i / 24) * TAU + t * .3;
+      rect(320 + Math.cos(a) * 140, 200 + Math.sin(a) * 70, 3, 3, '#d9a2ff');
+    }
+  },
+  solids: [{ x: 0, y: 0, w: 640, h: 300 }],
+  ents: []
+};
+
+AREAS.colony1 = {
+  name: 'TOKYO NO.1 COLONY', music: 'culling', bg: 'city',
+  w: 1280, h: 480, spawn: [70, 360],
+  draw(t) {
+    rect(0, 0, 1280, 480, '#0a0812');
+    dither(0, 0, 1280, 200, '#0a0812', '#1c1430', .15);
+    for (let i = 0; i < 16; i++) {
+      const bx = (i * 83) % 1280, bh = 70 + ((i * 59) % 120);
+      building(bx, 230 - bh, 62, bh, '#120f1c', '#2a2440');
+    }
+    // the colony barrier wall, humming
+    ctx.save(); ctx.globalAlpha = .25 + Math.sin(t * 1.6) * .07;
+    rect(0, 0, 1280, 240, '#6b2fd6'); ctx.restore();
+    for (let i = 0; i < 30; i++) rect((i * 137 + (t * 9 | 0)) % 1280, (i * 71) % 230, 3, 3, '#d9a2ff');
+    groundTiles(0, 230, 1280, 250, '#171326', '#13101f', 40);
+    roadH(320, 70);
+    for (let i = 0; i < 30; i++) rect((i * 97) % 1280, 250 + (i * 53) % 190, 12, 6, '#231b36');
+  },
+  solids: [{ x: 0, y: 0, w: 1280, h: 234 }],
+  encounters: ['grade2', 'grade1'],
+  deco: [{ k: 'lamp', x: 200, y: 250, u: 3 }, { k: 'lamp', x: 700, y: 250, u: 3 }, { k: 'sign', x: 420, y: 250, u: 3, col: '#9b4dff' }],
+  ents: []
+};
+
+AREAS.colony2 = {
+  name: 'TOKYO NO.2 COLONY — THE PARLOUR', music: 'orange', bg: 'city',
+  w: 1280, h: 480, spawn: [70, 370],
+  draw(t) {
+    rect(0, 0, 1280, 480, '#1a0a14');
+    dither(0, 0, 1280, 220, '#1a0a14', '#2e1024', .2);
+    // neon pachinko strip
+    for (let i = 0; i < 9; i++) {
+      const bx = i * 150, on = Math.sin(t * 4 + i) > -.4;
+      rect(bx, 90, 130, 150, '#241020');
+      rect(bx + 10, 100, 110, 34, on ? '#ff4fa3' : '#5a1b38');
+      rect(bx + 10, 142, 110, 90, '#160a12');
+      for (let k = 0; k < 12; k++) rect(bx + 16 + (k % 4) * 27, 150 + Math.floor(k / 4) * 28, 20, 20, (k + i) % 3 ? '#2a1420' : '#ffd24a');
+    }
+    groundTiles(0, 240, 1280, 240, '#2a1420', '#231018', 40);
+    rect(0, 236, 1280, 4, '#ffd24a');
+    // coins on the floor
+    for (let i = 0; i < 40; i++) rect((i * 73) % 1280, 260 + (i * 51) % 200, 6, 6, '#ffd24a');
+    ctx.save(); ctx.globalAlpha = .12 + Math.abs(Math.sin(t * 3)) * .1;
+    for (let r = 0; r < 10; r++) {
+      const a = (r / 10) * TAU + t;
+      ctx.fillStyle = r % 2 ? '#ffd24a' : '#ff4fa3';
+      ctx.beginPath(); ctx.moveTo(640, 300);
+      ctx.lineTo(640 + Math.cos(a - .1) * 700, 300 + Math.sin(a - .1) * 700);
+      ctx.lineTo(640 + Math.cos(a + .1) * 700, 300 + Math.sin(a + .1) * 700);
+      ctx.closePath(); ctx.fill();
+    }
+    ctx.restore();
+  },
+  solids: [{ x: 0, y: 0, w: 1280, h: 244 }],
+  ents: []
+};
+
+AREAS.sendai = {
+  name: 'SENDAI COLONY', music: 'culling', bg: 'city',
+  w: 1280, h: 480, spawn: [70, 360],
+  draw(t) {
+    rect(0, 0, 1280, 480, '#0a1018');
+    dither(0, 0, 1280, 210, '#0a1018', '#182a3a', .2);
+    for (let i = 0; i < 14; i++) {
+      const bx = (i * 95) % 1280, bh = 60 + ((i * 71) % 110);
+      building(bx, 220 - bh, 70, bh, '#101a26', '#2a4055');
+      if (i % 3 === 0) { rect(bx + 10, 220 - bh - 18, 50, 18, '#1a2a3a'); }
+    }
+    groundTiles(0, 220, 1280, 260, '#14202c', '#101a24', 40);
+    // snow drifting through the barrier
+    for (let i = 0; i < 60; i++) {
+      const x = (i * 83 + t * 18) % 1280, y = (i * 61 + t * 42) % 480;
+      rect(x, y, 2, 2, '#cfe3ff');
+    }
+    rect(0, 216, 1280, 4, '#3a5a7a');
+  },
+  solids: [{ x: 0, y: 0, w: 1280, h: 224 }],
+  encounters: ['grade1', 'fingerBearer'],
+  deco: [{ k: 'torii', x: 300, y: 160, u: 4 }, { k: 'lamp', x: 820, y: 240, u: 3 }],
+  ents: []
+};
+
+AREAS.courthouse = {
+  name: 'TOKYO DISTRICT COURT — SEALED', music: 'domain', bg: 'school',
+  w: 640, h: 480, spawn: [320, 410],
+  draw(t) {
+    rect(0, 0, 640, 480, '#0d0b14');
+    dither(0, 0, 640, 200, '#0d0b14', '#191430', .25);
+    // pillars and pediment
+    rect(60, 60, 520, 24, '#2a2438');
+    for (let i = 0; i < 6; i++) rect(90 + i * 80, 84, 34, 160, '#241f33');
+    rect(60, 244, 520, 18, '#2a2438');
+    groundTiles(0, 262, 640, 220, '#171326', '#13101f', 32);
+    // steps
+    for (let i = 0; i < 4; i++) rect(100 - i * 10, 262 + i * 12, 440 + i * 20, 12, '#201a30');
+    // scales above the door
+    const sway = Math.sin(t * 1.2) * 5;
+    rect(318, 100, 4, 40, '#c9a227');
+    rect(280, 118 + sway, 80, 3, '#c9a227');
+    circle(282, 128 + sway, 9, '#c9a227', false);
+    circle(358, 128 - sway, 9, '#c9a227', false);
+  },
+  solids: [{ x: 0, y: 0, w: 640, h: 266 }],
+  ents: []
+};
+
+AREAS.shinjuku_showdown = {
+  name: 'SHINJUKU — DECEMBER 24TH', music: 'sukuna', bg: 'shinjuku',
+  w: 1280, h: 480, spawn: [70, 370],
+  draw(t) {
+    rect(0, 0, 1280, 480, '#0d0810');
+    dither(0, 0, 1280, 230, '#0d0810', '#2a1020', .1);
+    for (let i = 0; i < 16; i++) {
+      const bx = (i * 83) % 1280, bh = 80 + ((i * 61) % 140);
+      rect(bx, 230 - bh, 66, bh, '#160e18');
+      for (let k = 0; k < 5; k++) rect(bx + 8 + (k % 3) * 20, 230 - bh + 14 + k * 22, 12, 14, (k + i) % 4 ? '#241626' : '#ff7a2a');
+    }
+    // the sky split open
+    ctx.save(); ctx.globalAlpha = .3 + Math.sin(t * 2) * .1;
+    for (let i = 0; i < 6; i++) {
+      const y = 20 + i * 14;
+      line(200 + i * 40, 0, 900 - i * 30, y + 60, '#9b4dff', 2);
+    }
+    ctx.restore();
+    groundTiles(0, 230, 1280, 250, '#1a1016', '#160d12', 40);
+    for (let i = 0; i < 60; i++) rect((i * 113) % 1280, 250 + (i * 67) % 220, 14, 7, '#2a1b20');
+    // craters
+    [[260, 390], [720, 330], [1080, 410]].forEach(([x, y]) => {
+      ctx.save(); ctx.globalAlpha = .65; ctx.beginPath(); ctx.ellipse(x, y, 70, 20, 0, 0, TAU);
+      ctx.fillStyle = '#0d0509'; ctx.fill(); ctx.restore();
+    });
+    for (let i = 0; i < 34; i++) {
+      const x = (i * 163 + t * 16) % 1280, y = 480 - ((i * 97 + t * 54) % 480);
+      rect(x, y, 2, 2, (i % 3) ? '#ff7a2a' : '#ffd24a');
+    }
+  },
+  solids: [{ x: 0, y: 0, w: 1280, h: 234 }],
+  deco: [],
+  ents: []
+};

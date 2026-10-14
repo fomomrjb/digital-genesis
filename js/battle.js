@@ -55,6 +55,10 @@ const Battle = {
     this.playerBuff = {}; this.enemyDebuff = {}; this.usedOnce = {}; this.phaseHit = {}; this.snacks = 0;
     this.transform = null; this.transformT = 0; this.tension = 0; this.graze = 0;
     this.spared = false; this.result = null; this.rewards = null; this.enemyDomainDef = null;
+    /* these leak between fights if they are not cleared - a domain queued by a
+       boss that died first would otherwise fire on the NEXT enemy */
+    this.domainPending = null; this.forcePattern = null; this.spinInit = false;
+    this.sureHit = false; this.copyList = null; this.selKind = null; this.bar = null;
     this.onWin = opts.onWin || null; this.onLose = opts.onLose || null; this.onFlee = opts.onFlee || null;
     this.canFlee = opts.canFlee !== false && !opts.boss;
     this.bgKind = opts.bg || 'city';
@@ -95,6 +99,7 @@ const Battle = {
       case 'victory': this.upVictory(dt); break;
       case 'defeat': this.upDefeat(dt); break;
       case 'fled': this.upFled(dt); break;
+      case 'selectcopy': this.upSelectCopy(dt); break;
       case 'message': this.upMessage(dt); break;
     }
   },
@@ -318,6 +323,7 @@ const Battle = {
       this.st = 'menu'; return;
     }
     this.tension = clamp(this.tension - cost, 0, this.tensionMax);
+    if (ab.id === 'vgcopy') { this.openCopyMenu(); return; }   // its cut-in plays on the chosen mod
     if (ab.once) this.usedOnce[ab.id] = true;
     FX.techniqueCutIn(ab);
 
@@ -391,12 +397,51 @@ const Battle = {
         this.say('* ASSET FLIP. Your injury data is traded for their pristine health state.');
         this.checkDeath();
         break; }
-      case 'vgcopy': this.openCopyMenu(); return;
+      case 'vgcopy': this.openCopyMenu(); return;   // handled above
       default: {
         const d = this.calcDmg(ab);
         this.dealDamage(d, {}); FX.pop(ex, ey - 40, '-' + d, { col: ab.col, scale: 3 });
         this.say('* ' + ab.name + '. ' + d + ' damage.');
       }
+    }
+    this.toResolve();
+  },
+
+  upSelectCopy(dt) {
+    const L = this.copyList || [];
+    if (!L.length) { this.st = 'menu'; return; }
+    if (Input.just('back')) { this.st = 'menu'; Audio.sfx('cancel'); return; }
+    if (Input.just('up')) { this.idx = (this.idx + L.length - 1) % L.length; Audio.sfx('move'); }
+    if (Input.just('down')) { this.idx = (this.idx + 1) % L.length; Audio.sfx('move'); }
+    if (Input.just('ok')) { Audio.sfx('ok'); this.useCopy(L[this.idx]); }
+  },
+
+  /* fire a technique Kenji has witnessed, rendered as a neon retro-game mod */
+  useCopy(c) {
+    const ex = this.enemyX(), ey = this.enemyY();
+    FX.techniqueCutIn({ name: c.name, jp: c.jp, kanji: null, col: c.col, colD: '#000', sfx: 'glitch' });
+    const inSandbox = DomainFight.def && DomainFight.def.id === 'sandbox';
+    if (c.heal) {                                   // Save / Load
+      const back = Math.round(G.hpMax * .45);
+      const before = G.hp; G.heal(back);
+      Audio.sfx('heal');
+      FX.pop(this.playerX(), this.playerY() - 30, '+' + (G.hp - before), { col: PAL.yellow, scale: 2 });
+      this.say('* VIDEO GAME COPY: ' + c.name + '.\n* You load a save from five seconds ago. The damage never happened.');
+    } else if (c.iframe) {                           // Invincibility Frames
+      this.playerBuff.ghost = 2;
+      Audio.sfx('warp');
+      FX.pop(this.playerX(), this.playerY() - 30, 'I-FRAMES', { col: PAL.cyan, scale: 2 });
+      this.say('* VIDEO GAME COPY: ' + c.name + '.\n* You air-dash out of your own hitbox for two turns.');
+    } else {
+      let d = Math.max(1, Math.round(G.atkTotal() * c.power * 1.7 * (this.playerBuff.atk || 1)) - this.edefNow());
+      if (this.inGhost()) d = this.ghostDmg(d);
+      if (inSandbox) d = Math.round(d * 1.5);        // maxed out inside Sandbox Mode
+      FX.burst(ex, ey, 26, { kind: 'pixel', col: c.col, size: 5, life: .8 });
+      FX.ring(ex, ey, { r: 80, col: c.col, w: 3, life: .4 });
+      Audio.sfx('crit');
+      this.dealDamage(d, {});
+      FX.pop(ex, ey - 40, '-' + d, { col: c.col, scale: 3 });
+      this.say('* VIDEO GAME COPY: ' + c.name + '.\n* ' + c.flavour);
     }
     this.toResolve();
   },
@@ -407,7 +452,9 @@ const Battle = {
       this.say('* No techniques witnessed yet. Watch someone use one first.');
       this.st = 'menu'; return;
     }
-    this.selKind = 'copy'; this.copyList = list; this.idx = 0; this.st = 'selectcopy';
+    this.selKind = 'copy';
+    this.copyList = list.map(c => Object.assign({ desc: c.flavour, tag: 'MOD' }, c));
+    this.idx = 0; this.st = 'selectcopy';
   },
 
   /* the Executioner's knife: ignores defensive metrics AND binding vows,
@@ -639,7 +686,7 @@ const Battle = {
     this.forcePattern = null;
     this.sureHit = sureHit;
     this.dodgeDur = pats.length ? 6.2 + Math.min(2.5, this.turn * .3) : 2;
-    this.patT = 0; this.patIdx = 0; this.spawnT = 0;
+    this.patT = 0; this.patIdx = 0; this.spawnT = 0; this.spinInit = false;
     this.say('* ' + (this.dialogueBark || pick(this.e.barks)));
     Audio.sfx('swing');
   },

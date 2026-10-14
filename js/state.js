@@ -46,7 +46,7 @@ const G = {   // global game state
   gainXP(n) {
     this.xp += n;
     const ups = [];
-    while (this.lv < 40 && this.xp >= xpFor(this.lv + 1)) {
+    while (this.lv < 60 && this.xp >= xpFor(this.lv + 1)) {
       this.lv++;
       this.hpMax += 7 + Math.floor(this.lv / 3);
       this.hp = this.hpMax;

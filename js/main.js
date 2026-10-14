@@ -7,7 +7,7 @@
 
 const Game = {
   mode: 'title', t: 0, last: 0, booted: false,
-  titleIdx: 0, titleT: 0,
+  titleIdx: 0, titleT: 0, chapIdx: 0,
   boardIdx: 0, boardScroll: 0, boardKind: 'missions',
   chalIdx: 0, rush: null, rushIdx: 0,
   creditsT: 0, prevMusic: null,
@@ -102,6 +102,7 @@ const Game = {
       /* ---- scene update ---- */
       switch (this.mode) {
         case 'title': this.upTitle(raw); break;
+        case 'chapters': this.upChapters(raw); break;
         case 'over':
           Over.update(slowed);
           if (Input.just('menu')) Menu.show();
@@ -139,6 +140,7 @@ const Game = {
     FX.applyShake();
     switch (this.mode) {
       case 'title': this.drawTitle(); break;
+      case 'chapters': this.drawChapters(); break;
       case 'over': if (Over.active) Over.draw(); break;
       case 'battle': Battle.draw(); break;
       case 'domain': DomainFight.draw(); break;
@@ -180,9 +182,49 @@ const Game = {
     const o = [];
     if (G.hasSave()) o.push({ t: 'CONTINUE', fn: () => this.continueGame() });
     o.push({ t: G.hasSave() ? 'NEW GAME' : 'START CHAPTER 1', fn: () => this.newGame() });
+    if (G.flags.ch1_done && CHAPTERS.length > 1)
+      o.push({ t: 'CHAPTER SELECT', fn: () => { this.mode = 'chapters'; this.chapIdx = 0; Audio.sfx('ok'); } });
     o.push({ t: 'HOW TO PLAY', fn: () => this.showHelp() });
     o.push({ t: 'COMMAND CONSOLE', fn: () => ChatConsole.show() });
     return o;
+  },
+
+  /* ---------- chapter select ---------- */
+  upChapters(dt) {
+    const n = CHAPTERS.length;
+    if (Input.just('up')) { this.chapIdx = (this.chapIdx + n - 1) % n; Audio.sfx('move'); }
+    if (Input.just('down')) { this.chapIdx = (this.chapIdx + 1) % n; Audio.sfx('move'); }
+    if (Input.just('back') || Input.just('esc')) { this.mode = 'title'; Audio.sfx('cancel'); }
+    if (Input.just('ok')) {
+      const ch = CHAPTERS[this.chapIdx];
+      if (ch.n > 1 && !G.flags['ch' + (ch.n - 1) + '_done']) { Audio.sfx('deny'); return; }
+      Audio.sfx('ok');
+      Fade.out(() => { Story.startChapter(ch.n); Fade.in(); }, 2.2);
+    }
+  },
+  drawChapters() {
+    rect(0, 0, W, H, '#07050c');
+    ctx.save(); ctx.globalAlpha = .8;
+    const g = ctx.createRadialGradient(W / 2, 240, 10, W / 2, 240, 420);
+    g.addColorStop(0, '#3a1a00'); g.addColorStop(1, '#07050c');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); ctx.restore();
+    pixelGlyphs('\u7AE0', W / 2, 62, 60, PAL.orange, { outline: '#1a0a00', dn: 3, shadow: true });
+    textC('CHAPTER SELECT', W / 2, 104, { scale: 3, color: '#fff', shadow: PAL.orangeD });
+    CHAPTERS.forEach((ch, i) => {
+      const sel = i === this.chapIdx, y = 150 + i * 92;
+      const locked = ch.n > 1 && !G.flags['ch' + (ch.n - 1) + '_done'];
+      const done = !!G.flags['ch' + ch.n + '_done'];
+      rect(60, y, W - 120, 78, sel ? '#1a0f04' : '#0b0a12');
+      frameRect(60, y, W - 120, 78, sel ? PAL.orange : '#2a2438', sel ? 3 : 2);
+      textC('CHAPTER ' + ch.n, W / 2, y + 10, { scale: 2, color: locked ? '#55637d' : PAL.orange2 });
+      textC(ch.title.toUpperCase(), W / 2, y + 30, { scale: 3, color: locked ? '#3a4254' : '#fff', shadow: '#000' });
+      textC(locked ? 'FINISH CHAPTER ' + (ch.n - 1) + ' FIRST' : ch.sub, W / 2, y + 58,
+        { scale: 1, color: locked ? PAL.red : '#8fa0bd' });
+      if (done) text('CLEARED', W - 150, y + 10, { scale: 1, color: PAL.green });
+      text(ch.missions.length + ' MISSIONS', 76, y + 10, { scale: 1, color: '#55637d' });
+    });
+    textC('Chapter 2 picks up at your current level. Your save carries over.', W / 2, H - 52, { scale: 1, color: '#55637d' });
+    textC('\u2191\u2193 SELECT    Z START    X BACK', W / 2, H - 30, { scale: 1, color: '#55637d' });
   },
   showHelp() {
     Dlg.start([
@@ -423,9 +465,16 @@ const Game = {
     ];
     ABILITIES.filter(a => G.has(a.id)).forEach(a => lines.push([a.name, 1, a.col]));
     lines.push(['', 1, '#fff']);
-    lines.push(['NEXT CHAPTER', 3, PAL.orange]);
-    lines.push(['THE CULLING GAME', 2, '#fff']);
-    lines.push(['19 DAYS. 10 RULES. ONE OF THEM IS WRITE ACCESS.', 1, PAL.yellow]);
+    if ((G.chapter || 1) < CHAPTERS.length) {
+      lines.push(['NEXT CHAPTER', 3, PAL.orange]);
+      lines.push(['THE CULLING GAME', 2, '#fff']);
+      lines.push(['19 DAYS. 10 RULES. ONE OF THEM IS WRITE ACCESS.', 1, PAL.yellow]);
+    } else {
+      lines.push(['THE STORY STOPS HERE FOR NOW', 3, PAL.orange]);
+      lines.push(['this game follows the anime, and the anime', 1, '#cfe3ff']);
+      lines.push(['has not gone further than this yet.', 1, '#cfe3ff']);
+      lines.push(['no spoilers. more when there is more.', 1, PAL.yellow]);
+    }
     lines.push(['', 1, '#fff']);
     lines.push(['THANK YOU FOR PLAYING', 3, PAL.orange]);
     let y = sy;

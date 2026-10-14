@@ -66,6 +66,8 @@ const EMOTES = {
     desc: 'Throw the hand sign, hold it, let the barrier shimmer. Show-off.' },
   voidstare:{ name: 'Infinite Void Stare', kind: 'stare', rar: RARITY.mythic, price: 7500, dur: 3.6,
     desc: 'Stand perfectly still and perceive everything. Very rude in queues.' },
+  takabamic:{ name: 'Takaba Mic Drop', kind: 'mic', rar: RARITY.epic, price: 2600, dur: 2.4,
+    desc: 'Deadpan stare, then the microphone hits the floor. Whatever he finds funny becomes true, so be careful.' },
   todoclap:{ name: 'Todo Clap', kind: 'clap', rar: RARITY.rare, price: 1400, dur: 2.0,
     desc: 'Clap. Something, somewhere, swaps places.' }
 };
