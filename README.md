@@ -65,6 +65,19 @@ readout, x2.5 damage.
 **Dodging.** The enemy turn is bullet hell inside a soul box. Grazing charges
 FOCUS, and FOCUS is what pays for a domain.
 
+Characters fight like themselves. Gojo's Red and Blue drag your soul in and
+shove it away; Sukuna rains Malevolent Shrine cleaves and summons Divine Dogs
+and Nue once he is wearing Megumi; Mahito throws walls of hands with one gap
+and sends hands that chase the soul directly; Hakari floods the box with
+bouncing pachinko balls; Higuruma slams a gavel that scatters the verdict;
+Kashimo strings a live wire across the arena; Choso fires supersonic piercing
+blood; Dagon sends waves with one gap and a death swarm of fish; Hanami drifts
+lingering poison; Toji just moves faster than you; Mechamaru paints a targeting
+reticle on you before the shell lands; Kirara magnetises you toward a point;
+Charles closes the manga panel borders in; Reggie's paper turns into a car
+mid-flight; Uro drops the sky; Ryu sweeps one absurd beam; Mahoraga's wheel
+spins faster every turn it adapts; and Takaba does whatever he thinks is funny.
+
 **Domains — Hollow Knight-style.** Expanding a barrier switches the game to a
 side-view action fight with jumping, dashing, slashes, pogo hits and focus
 healing.

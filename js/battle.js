@@ -686,7 +686,7 @@ const Battle = {
     this.forcePattern = null;
     this.sureHit = sureHit;
     this.dodgeDur = pats.length ? 6.2 + Math.min(2.5, this.turn * .3) : 2;
-    this.patT = 0; this.patIdx = 0; this.spawnT = 0; this.spinInit = false;
+    this.patT = 0; this.patIdx = 0; this.spawnT = 0; this.spawnT2 = 0; this.spinInit = false;
     this.say('* ' + (this.dialogueBark || pick(this.e.barks)));
     Audio.sfx('swing');
   },
@@ -694,7 +694,7 @@ const Battle = {
 
   upDodge(dt) {
     const box = this.boxRect();
-    this.dodgeT += dt; this.patT += dt; this.spawnT += dt;
+    this.dodgeT += dt; this.patT += dt; this.spawnT += dt; this.spawnT2 = (this.spawnT2 || 0) + dt;
     // soul movement
     const sp = 150 * (this.playerBuff.ghost ? 1.35 : 1) * G.speedMult;
     let dx = 0, dy = 0;
@@ -771,6 +771,11 @@ const Battle = {
     const P = this.pattern, cx = box.x + box.w / 2, cy = box.y + box.h / 2;
     const push = b => this.bullets.push(Object.assign({ t: 0, r: 6, col: '#fff' }, b));
     const rate = (iv, fn) => { if (this.spawnT >= iv) { this.spawnT = 0; fn(); } };
+    const rate2 = (iv, fn) => { if ((this.spawnT2 || 0) >= iv) { this.spawnT2 = 0; fn(); } };
+    const clampSoul = () => {
+      this.soul.x = clamp(this.soul.x, box.x + 5, box.x + box.w - 5);
+      this.soul.y = clamp(this.soul.y, box.y + 5, box.y + box.h - 5);
+    };
 
     switch (P) {
       case 'bullets':
@@ -917,6 +922,261 @@ const Battle = {
             const a = -Math.PI / 2 + (i - (n - 1) / 2) * .22;
             push({ x: cx, y: box.y - 24, vx: Math.cos(a) * 60, vy: Math.sin(a) * -130, r: 6, col: '#ff7a2a', dmg: this.eatk + 4 });
           }
+        });
+        break;
+
+      /* ===== SIGNATURE PATTERNS ===== */
+      case 'redblue':            // Gojo: Blue drags your soul in, Red shoves it away
+        rate(1.9, () => {
+          const blue = Math.random() < .5;
+          push({
+            x: rnd(box.x + box.w - 40, box.x + 40), y: rnd(box.y + box.h - 30, box.y + 30),
+            r: 15, life: 2.1, col: blue ? '#3ddcff' : '#ff3b3b', dmg: this.eatk + 6, orb: true,
+            up: (b, d, B) => {
+              const a = Math.atan2(b.y - B.soul.y, b.x - B.soul.x);
+              const pull = blue ? 105 : -105;
+              B.soul.x += Math.cos(a) * pull * d;
+              B.soul.y += Math.sin(a) * pull * d;
+              clampSoul();
+            }
+          });
+        });
+        break;
+      case 'hollowpurple':       // one enormous erasing beam, heavily telegraphed
+        rate(2.8, () => {
+          const horiz = Math.random() < .5;
+          const pos = horiz ? rnd(box.y + box.h - 28, box.y + 28) : rnd(box.x + box.w - 28, box.x + 28);
+          push({ x: horiz ? box.x + box.w / 2 : pos, y: horiz ? pos : box.y + box.h / 2,
+            rectW: horiz ? box.w : 36, rectH: horiz ? 36 : box.h,
+            delay: 1.0, life: 1.7, col: '#9b4dff', telegraph: true, beam: true, dmg: this.eatk + 15,
+            up: b => { if (b.t > b.delay && !b.fired) { b.fired = true; Audio.sfx('crit'); FX.shake(7, .25); } } });
+        });
+        break;
+      case 'divinedogs':         // two shikigami that run you down along the floor
+        rate(2.3, () => {
+          [0, 1].forEach(i => push({
+            x: i ? box.x + box.w + 18 : box.x - 18, y: box.y + box.h - 16,
+            vx: i ? -165 : 165, vy: 0, rectW: 24, rectH: 15, col: '#4a5a7a', dog: true, dmg: this.eatk + 2,
+            up: (b, d, B) => { b.x += b.vx * d; b.y += (B.soul.y - b.y) * .9 * d; }
+          }));
+        });
+        break;
+      case 'nue':                // lightning drops where you are standing
+        rate(1.0, () => {
+          push({ x: this.soul.x, y: box.y + box.h / 2, rectW: 13, rectH: box.h,
+            delay: .62, life: 1.0, col: '#7fd9ff', telegraph: true, dmg: this.eatk + 6 });
+        });
+        break;
+      case 'shrine':             // Malevolent Shrine: the rain never stops
+        rate(.42, () => {
+          const vert = Math.random() < .5;
+          const pos = vert ? rnd(box.x + box.w - 18, box.x + 18) : rnd(box.y + box.h - 18, box.y + 18);
+          push({ x: vert ? pos : box.x + box.w / 2, y: vert ? box.y + box.h / 2 : pos,
+            rectW: vert ? 11 : box.w, rectH: vert ? box.h : 11,
+            delay: .38, life: .7, col: '#ff5a5a', telegraph: true, slash: true, dmg: this.eatk + 3 });
+        });
+        break;
+      case 'blood':              // Choso: piercing blood, supersonic once it fires
+        rate(.85, () => {
+          const a = Math.atan2(this.soul.y - (box.y - 10), this.soul.x - cx);
+          push({ x: cx, y: box.y - 10, r: 6, col: '#8c0f0f', dmg: this.eatk + 8,
+            delay: .4, telegraph: true, life: 3,
+            up: (b, d) => { if (b.t > .4) { b.x += Math.cos(a) * 430 * d; b.y += Math.sin(a) * 430 * d; } } });
+        });
+        break;
+      case 'pollen':             // Hanami: drifting poison that lingers
+        rate(.75, () => {
+          push({ x: rnd(box.x + box.w - 24, box.x + 24), y: box.y - 10, r: 20,
+            col: '#7ba85f', dmg: this.eatk - 1, life: 3.4, cloud: true,
+            up: (b, d) => { b.x += Math.sin(b.t * 2.2) * 26 * d; b.y += 34 * d; } });
+        });
+        break;
+      case 'tsunami':            // Dagon: a wave with one gap in it
+        rate(2.5, () => {
+          const gapX = rnd(box.x + box.w - 90, box.x + 40), gapW = 56;
+          const up = Math.random() < .5;
+          const y0 = up ? box.y + box.h + 24 : box.y - 24, vy = up ? -95 : 95;
+          const leftW = gapX - box.x, rightW = (box.x + box.w) - (gapX + gapW);
+          if (leftW > 6) push({ x: box.x + leftW / 2, y: y0, rectW: leftW, rectH: 24, col: '#7fd9e8',
+            dmg: this.eatk + 4, life: 4, wave: true, up: (b, d) => { b.y += vy * d; } });
+          if (rightW > 6) push({ x: gapX + gapW + rightW / 2, y: y0, rectW: rightW, rectH: 24, col: '#7fd9e8',
+            dmg: this.eatk + 4, life: 4, wave: true, up: (b, d) => { b.y += vy * d; } });
+        });
+        break;
+      case 'fish':               // Dagon: death swarm
+        rate(.26, () => {
+          const fromLeft = Math.random() < .5;
+          push({ x: fromLeft ? box.x - 10 : box.x + box.w + 10, y: rnd(box.y + box.h - 10, box.y + 10),
+            vx: fromLeft ? 140 : -140, vy: 0, r: 6, col: '#9fe8ff', dmg: this.eatk,
+            up: (b, d) => { b.x += b.vx * d; b.y += Math.sin(b.t * 7) * 64 * d; } });
+        });
+        break;
+      case 'handwall':           // Mahito: a wall of hands with one way through
+        rate(1.7, () => {
+          const n = 5, gap = rndi(n);
+          for (let i = 0; i < n; i++) {
+            if (i === gap) continue;
+            push({ x: box.x + 14 + i * (box.w - 28) / (n - 1), y: box.y + box.h + 22,
+              vx: 0, vy: -88, rectW: 21, rectH: 28, col: '#e8bd9c', hand: true, dmg: this.eatk + 3,
+              up: (b, d) => { b.y += b.vy * d; } });
+          }
+        });
+        break;
+      case 'soulgrab':           // Mahito: hands that chase the soul itself
+        rate(1.3, () => {
+          push({ x: rnd(box.x + box.w, box.x), y: box.y - 16, r: 9, col: '#ff9ec4',
+            dmg: this.eatk + 6, life: 4.2, vx: 0, vy: 0,
+            up: (b, d, B) => {
+              const a = Math.atan2(B.soul.y - b.y, B.soul.x - b.x);
+              b.vx = lerp(b.vx, Math.cos(a) * 92, d * 1.9);
+              b.vy = lerp(b.vy, Math.sin(a) * 92, d * 1.9);
+              b.x += b.vx * d; b.y += b.vy * d;
+            } });
+        });
+        break;
+      case 'jackpot':            // Hakari: pachinko balls bouncing off every wall
+        rate(.65, () => {
+          push({ x: rnd(box.x + box.w - 24, box.x + 24), y: box.y + 8, vx: rnd(170, -170), vy: 110,
+            r: 7, col: '#ffd24a', dmg: this.eatk, life: 6.5, keep: true,
+            up: (b, d, B, bx) => {
+              b.x += b.vx * d; b.y += b.vy * d; b.vy += 230 * d;
+              if (b.x < bx.x + 5) { b.x = bx.x + 5; b.vx = Math.abs(b.vx); }
+              if (b.x > bx.x + bx.w - 5) { b.x = bx.x + bx.w - 5; b.vx = -Math.abs(b.vx); }
+              if (b.y > bx.y + bx.h - 5) { b.y = bx.y + bx.h - 5; b.vy = -Math.abs(b.vy) * .84; }
+              if (b.y < bx.y + 5) { b.y = bx.y + 5; b.vy = Math.abs(b.vy); }
+            } });
+        });
+        break;
+      case 'gavel':              // Higuruma: the gavel comes down, then the verdict scatters
+        rate(2.1, () => {
+          push({ x: rnd(box.x + box.w - 40, box.x + 40), y: box.y - 26, rectW: 54, rectH: 28,
+            col: '#c9a227', delay: .62, telegraph: true, dmg: this.eatk + 9, life: 2.4,
+            up: (b, d, B, bx) => {
+              if (b.t <= b.delay) return;
+              b.y += 640 * d;
+              if (b.y > bx.y + bx.h - 18 && !b.boom) {
+                b.boom = true; Audio.sfx('bigslam'); FX.shake(7, .22);
+                for (let i = -3; i <= 3; i++) if (i) B.bullets.push({
+                  x: b.x, y: bx.y + bx.h - 12, vx: i * 95, vy: -50, r: 5, t: 0,
+                  col: '#ffd24a', dmg: B.eatk, life: 2.4
+                });
+              }
+            } });
+        });
+        break;
+      case 'electric':           // Kashimo: a live wire strung across the box
+        rate(1.45, () => {
+          const y0 = rnd(box.y + box.h - 22, box.y + 22), y1 = rnd(box.y + box.h - 22, box.y + 22);
+          for (let i = 0; i <= 11; i++) {
+            const k = i / 11;
+            push({ x: box.x + k * box.w, y: lerp(y0, y1, k) + rnd(5, -5), r: 6,
+              col: '#7fd9ff', delay: .55, life: 1.15, telegraph: true, dmg: this.eatk + 5 });
+          }
+        });
+        break;
+      case 'sky':                // Uro: the sky itself is the weapon
+        rate(2.3, () => {
+          const gapX = rnd(box.x + box.w - 100, box.x + 46), gapW = 62;
+          const lw = gapX - box.x, rw = (box.x + box.w) - (gapX + gapW);
+          if (lw > 6) push({ x: box.x + lw / 2, y: box.y - 18, rectW: lw, rectH: 20, col: '#9fd4ff',
+            dmg: this.eatk + 6, life: 4, up: (b, d) => { b.y += 118 * d; } });
+          if (rw > 6) push({ x: gapX + gapW + rw / 2, y: box.y - 18, rectW: rw, rectH: 20, col: '#9fd4ff',
+            dmg: this.eatk + 6, life: 4, up: (b, d) => { b.y += 118 * d; } });
+        });
+        break;
+      case 'granite':            // Ryu: one absurd beam, sweeping
+        rate(3.2, () => {
+          push({ x: box.x + 10, y: box.y + box.h / 2, rectW: 20, rectH: box.h, col: '#ff7a2a',
+            delay: .85, telegraph: true, beam: true, dmg: this.eatk + 11, life: 3.6,
+            up: (b, d) => { if (b.t > b.delay) b.x += 126 * d; } });
+        });
+        break;
+      case 'comedy':             // Takaba: whatever he finds funny
+        rate(.46, () => {
+          const kind = rndi(4);
+          if (kind === 0) push({ x: rnd(box.x + box.w, box.x), y: box.y - 10, vx: 0, vy: 160, r: 10, col: '#ffe14d', dmg: this.eatk });
+          else if (kind === 1) push({ x: box.x - 12, y: rnd(box.y + box.h, box.y), vx: 210, vy: 0, rectW: 28, rectH: 11, col: '#ff4fa3', dmg: this.eatk });
+          else if (kind === 2) { for (let i = 0; i < 6; i++) { const a = (i / 6) * TAU; push({ x: cx, y: cy, vx: Math.cos(a) * 115, vy: Math.sin(a) * 115, r: 5, col: '#4ddd6a', dmg: this.eatk }); } }
+          else push({ x: rnd(box.x + box.w, box.x), y: box.y + box.h + 10, vx: 0, vy: -180, r: 7, col: '#3ba7ff', dmg: this.eatk });
+        });
+        break;
+      case 'receipts':           // Reggie: paper becomes whatever was printed on it
+        rate(.85, () => {
+          push({ x: rnd(box.x + box.w - 24, box.x + 24), y: box.y - 14, vx: rnd(44, -44), vy: 86,
+            rectW: 14, rectH: 18, col: '#e8e0cc', dmg: this.eatk, life: 4.5,
+            up: (b, d) => {
+              b.x += b.vx * d; b.y += b.vy * d;
+              if (b.t > 1.0 && !b.became) {
+                b.became = true; b.rectW = 28; b.rectH = 26; b.col = '#8a94a8';
+                b.vy = 265; b.dmg += 6; Audio.sfx('glitch');
+              }
+            } });
+        });
+        break;
+      case 'magnet':             // Kirara: everything attracts, including you
+        rate(2.5, () => {
+          const px = rnd(box.x + box.w - 44, box.x + 44), py = rnd(box.y + box.h - 34, box.y + 34);
+          push({ x: px, y: py, r: 11, col: '#ff9ec4', harmless: true, life: 2.6, magnet: true,
+            up: (b, d, B) => {
+              const a = Math.atan2(b.y - B.soul.y, b.x - B.soul.x);
+              B.soul.x += Math.cos(a) * 88 * d; B.soul.y += Math.sin(a) * 88 * d;
+              clampSoul();
+            } });
+          for (let i = 0; i < 5; i++) {
+            const a = (i / 5) * TAU;
+            push({ x: px + Math.cos(a) * 76, y: py + Math.sin(a) * 76, r: 6, col: '#ffb3d9',
+              dmg: this.eatk, life: 2.6,
+              up: (b, d) => { const a2 = Math.atan2(py - b.y, px - b.x); b.x += Math.cos(a2) * 62 * d; b.y += Math.sin(a2) * 62 * d; } });
+          }
+        });
+        break;
+      case 'manga':              // Charles: the panel borders close in
+        rate(2.7, () => {
+          const safe = rndi(4);
+          const sides = [
+            () => push({ x: cx, y: box.y - 12, rectW: box.w, rectH: 12, col: '#e8e0cc', dmg: this.eatk, life: 3.4, up: (b, d) => { b.y += 56 * d; } }),
+            () => push({ x: cx, y: box.y + box.h + 12, rectW: box.w, rectH: 12, col: '#e8e0cc', dmg: this.eatk, life: 3.4, up: (b, d) => { b.y -= 56 * d; } }),
+            () => push({ x: box.x - 12, y: cy, rectW: 12, rectH: box.h, col: '#e8e0cc', dmg: this.eatk, life: 3.4, up: (b, d) => { b.x += 56 * d; } }),
+            () => push({ x: box.x + box.w + 12, y: cy, rectW: 12, rectH: box.h, col: '#e8e0cc', dmg: this.eatk, life: 3.4, up: (b, d) => { b.x -= 56 * d; } })
+          ];
+          sides.forEach((f, i) => { if (i !== safe && Math.random() < .8) f(); });
+        });
+        break;
+      case 'wheel':              // Mahoraga: the wheel turns, and it gets faster
+        if (!this.spinInit) {
+          this.spinInit = true;
+          for (let i = 0; i < 3; i++) push({ x: cx, y: cy, r: 8, col: '#d9cfc0', keep: true, life: 99,
+            up: (b, d, B, bx) => {
+              const a = B.dodgeT * (2.0 + B.turn * .22) + (i / 3) * TAU;
+              b.x = bx.x + bx.w / 2 + Math.cos(a) * 78;
+              b.y = bx.y + bx.h / 2 + Math.sin(a) * 46;
+            } });
+        }
+        rate(1.25, () => push({ x: rnd(box.x + box.w, box.x), y: box.y - 10, vx: 0, vy: 160, r: 6, col: '#ff3b3b', dmg: this.eatk + 4 }));
+        break;
+      case 'curses':             // Geto / Kenjaku: a spiral of borrowed curses
+        rate(1.05, () => {
+          const n = 7;
+          for (let i = 0; i < n; i++) {
+            const a0 = (i / n) * TAU + this.dodgeT * 1.3;
+            push({ x: cx, y: cy, r: 6, col: '#9b4dff', dmg: this.eatk, life: 4,
+              up: b => { const a2 = a0 + b.t * 1.7, rr = 18 + b.t * 115;
+                b.x = cx + Math.cos(a2) * rr; b.y = cy + Math.sin(a2) * rr * .7; } });
+          }
+        });
+        break;
+      case 'chains':             // Toji: no cursed energy, just a very fast man
+        rate(1.4, () => {
+          push({ x: box.x + box.w / 2, y: this.soul.y, rectW: box.w, rectH: 9,
+            delay: .45, life: .85, col: '#b9c2d0', telegraph: true, dmg: this.eatk + 10 });
+        });
+        rate2(.55, () => push({ x: rnd(box.x + box.w, box.x), y: box.y - 8, vx: 0, vy: 190, r: 5, col: '#8a94a8', dmg: this.eatk }));
+        break;
+      case 'artillery':          // Mechamaru: targeted bombardment
+        rate(1.15, () => {
+          const tx = this.soul.x, ty = this.soul.y;
+          push({ x: tx, y: ty, r: 26, col: '#3ddcff', harmless: true, life: .8, reticle: true });
+          push({ x: tx, y: ty, r: 11, col: '#ff7a2a', delay: .78, life: 1.1, telegraph: true, dmg: this.eatk + 7 });
         });
         break;
       default: break;
@@ -1256,11 +1516,54 @@ const Battle = {
           if (b.hand) {
             for (let f = 0; f < 4; f++) rect(b.x - b.rectW / 2 + 2 + f * 4, b.y - b.rectH / 2 - 6, 3, 8, '#e8bd9c');
           }
+          if (b.wave) {
+            for (let w = 0; w < b.rectW; w += 10)
+              rect(b.x - b.rectW / 2 + w, b.y - b.rectH / 2 - 3 + Math.sin(b.t * 9 + w * .18) * 3, 8, 5, '#cfeef7');
+          }
+          if (b.beam) {
+            ctx.globalAlpha = .45;
+            rect(b.x - b.rectW / 2 - 5, b.y - b.rectH / 2 - 5, b.rectW + 10, b.rectH + 10, b.col);
+            ctx.globalAlpha = 1;
+            rect(b.x - b.rectW / 2 + 3, b.y - b.rectH / 2 + 3, b.rectW - 6, b.rectH - 6, '#fff');
+          }
+          if (b.dog) {
+            rect(b.x - b.rectW / 2 + 2, b.y - b.rectH / 2 - 5, 6, 6, b.col);
+            rect(b.x + b.rectW / 2 - 4, b.y - b.rectH / 2 - 3, 4, 4, b.col);
+            rect(b.x - b.rectW / 2 + 3, b.y - b.rectH / 2 - 3, 2, 2, '#ff3b3b');
+          }
           if (b.slash) { ctx.globalAlpha = .5; rect(b.x - b.rectW / 2 - 3, b.y - b.rectH / 2, b.rectW + 6, b.rectH, '#fff'); }
         }
+      } else if (b.reticle) {
+        ctx.globalAlpha = .5 + Math.sin(b.t * 26) * .3;
+        circle(b.x, b.y, b.r, b.col, false);
+        line(b.x - b.r - 5, b.y, b.x - b.r + 3, b.y, b.col, 2);
+        line(b.x + b.r - 3, b.y, b.x + b.r + 5, b.y, b.col, 2);
+        line(b.x, b.y - b.r - 5, b.x, b.y - b.r + 3, b.col, 2);
+        line(b.x, b.y + b.r - 3, b.x, b.y + b.r + 5, b.col, 2);
+      } else if (b.cloud) {
+        ctx.globalAlpha = .4;
+        circle(b.x, b.y, b.r, b.col);
+        ctx.globalAlpha = .7;
+        circle(b.x - b.r * .3, b.y - b.r * .2, b.r * .5, b.col);
+        circle(b.x + b.r * .35, b.y + b.r * .15, b.r * .45, b.col);
+      } else if (b.magnet) {
+        ctx.globalAlpha = .55 + Math.sin(b.t * 10) * .2;
+        circle(b.x, b.y, b.r, b.col, false);
+        circle(b.x, b.y, b.r * .45, b.col);
+        for (let i = 0; i < 6; i++) {
+          const a = (i / 6) * TAU + b.t * 3;
+          rect(b.x + Math.cos(a) * (b.r + 7), b.y + Math.sin(a) * (b.r + 7), 2, 2, b.col);
+        }
+      } else if (b.orb) {
+        circle(b.x, b.y, b.r + 5, '#0a0a16');
+        circle(b.x, b.y, b.r, b.col);
+        circle(b.x, b.y, b.r * .45, '#fff');
+        ctx.globalAlpha = .35;
+        circle(b.x, b.y, b.r + 9 + Math.sin(b.t * 12) * 3, b.col, false);
+      } else if (b.r > 12) {
+        circle(b.x, b.y, b.r + 4, '#2a1b6b'); circle(b.x, b.y, b.r, b.col); circle(b.x, b.y, b.r * .4, '#fff');
       } else {
-        if (b.r > 12) { circle(b.x, b.y, b.r + 4, '#2a1b6b'); circle(b.x, b.y, b.r, b.col); circle(b.x, b.y, b.r * .4, '#fff'); }
-        else { rect(b.x - b.r / 2, b.y - b.r / 2, b.r, b.r, b.col); rect(b.x - b.r / 2, b.y - b.r / 2, b.r, 1, '#fff'); }
+        rect(b.x - b.r / 2, b.y - b.r / 2, b.r, b.r, b.col); rect(b.x - b.r / 2, b.y - b.r / 2, b.r, 1, '#fff');
       }
       ctx.restore();
       if (G.showHitbox) frameRect(b.x - (b.rectW || b.r) / 2, b.y - (b.rectH || b.r) / 2, b.rectW || b.r, b.rectH || b.r, '#0f0', 1);

@@ -28,13 +28,13 @@ const ENEMIES = {
   },
   grade1: {
     name: 'Grade 1 Curse', spr: 'curseBig', hp: 210, atk: 17, def: 7, xp: 180, money: 300,
-    scale: 4, patterns: ['cleave', 'rain', 'homing', 'spin'], music: 'battle', grade: '1',
+    scale: 4, patterns: ['cleave', 'rain', 'spin', 'homing'], music: 'battle', grade: '1',
     check: 'Grade 1. 210 HP. It has a mouth where a mouth should not be.',
     barks: ['It grins with a hundred teeth.', 'The floor cracks under it.', '*ROAAAR*']
   },
   fingerBearer: {
     name: 'Finger Bearer', spr: 'curseBig', hp: 300, atk: 20, def: 9, xp: 240, money: 420,
-    scale: 5, patterns: ['cleave', 'spin', 'rain', 'grid'], music: 'boss', grade: 'SP',
+    scale: 5, patterns: ['shrine', 'cleave', 'spin', 'grid'], music: 'boss', grade: 'SP',
     check: 'It swallowed one of Sukuna\'s fingers. The finger is doing the thinking.',
     barks: ['The finger pulses.', 'It moves like something else is driving.', '*WET GURGLE*']
   },
@@ -71,28 +71,28 @@ const ENEMIES = {
   },
   hanami: {
     name: 'Hanami', spr: 'hanami', hp: 520, atk: 22, def: 12, xp: 420, money: 700,
-    scale: 5, patterns: ['thorns', 'rain', 'homing', 'grid'], music: 'boss', grade: 'SP',
+    scale: 5, patterns: ['thorns', 'pollen', 'rain', 'grid'], music: 'boss', grade: 'SP',
     check: 'Special Grade. 520 HP. It wants the humans gone so the forest can breathe.',
     barks: ['"...Jujutsu sorcerer."', 'Wooden branches creak outward.', 'Flower buds open — poison.'],
     phases: [{ at: .5, bark: 'Hanami hardens its bark. Defence up.', buff: { def: 6 } }]
   },
   jogo: {
     name: 'Jogo', spr: 'jogo', hp: 500, atk: 26, def: 10, xp: 400, money: 680,
-    scale: 5, patterns: ['fire', 'rain', 'homing'], music: 'boss', grade: 'SP',
+    scale: 5, patterns: ['fire', 'meteor', 'homing'], music: 'boss', grade: 'SP',
     check: 'Special Grade. 500 HP. Claims to be as strong as Hanami. Nobody agrees.',
     barks: ['"Insolent monkey."', 'The air shimmers at 200°C.', '"I will erase this city."'],
     phases: [{ at: .4, bark: 'Jogo prepares MAXIMUM: METEOR.', pattern: 'meteor' }]
   },
   dagon: {
     name: 'Dagon', spr: 'dagon', hp: 560, atk: 24, def: 11, xp: 430, money: 720,
-    scale: 5, patterns: ['water', 'homing', 'grid'], music: 'boss', grade: 'SP',
+    scale: 5, patterns: ['tsunami', 'fish', 'water', 'grid'], music: 'boss', grade: 'SP',
     check: 'Special Grade. 560 HP. Newly born. Already drowning a whole district.',
     barks: ['"...Shikigami."', 'Water rises out of nothing.', 'Death Swarm: fish.'],
     domain: 'selfembodiment'
   },
   mahito: {
     name: 'Mahito', spr: 'mahito', hp: 650, atk: 25, def: 10, xp: 520, money: 900,
-    scale: 5, patterns: ['hands', 'homing', 'bugs', 'grid'], music: 'shibuya', grade: 'SP',
+    scale: 5, patterns: ['handwall', 'soulgrab', 'bugs', 'grid'], music: 'shibuya', grade: 'SP',
     check: 'Special Grade. 650 HP. Souls are toys to him. Your soul is a toy he cannot open.',
     barks: ['"A child? Jujutsu High must be desperate!"', '"Let me see what shape your soul takes!"',
             '"Idle Transfiguration!"'],
@@ -103,14 +103,14 @@ const ENEMIES = {
   },
   mahitoFinal: {
     name: 'Mahito (Perfected)', spr: 'mahito', hp: 560, atk: 32, def: 14, xp: 600, money: 1100,
-    scale: 5, patterns: ['hands', 'grid', 'cleave'], music: 'shibuya', grade: 'SP',
+    scale: 5, patterns: ['soulgrab', 'handwall', 'shrine', 'grid'], music: 'shibuya', grade: 'SP',
     check: 'He has shed everything unnecessary. 560 HP of pure transfiguration.',
     barks: ['"I understand now. You are not changing the body."', '"You interrupt the connection!"',
             '"I will become perfect!"']
   },
   gojoSpar: {
     name: 'Satoru Gojo', spr: 'gojo', hp: 360, atk: 26, def: 10, xp: 700, money: 1200,
-    scale: 5, patterns: ['purple', 'homing', 'laser', 'grid'], music: 'boss', grade: 'SP',
+    scale: 5, patterns: ['redblue', 'hollowpurple', 'laser', 'grid', 'homing'], music: 'boss', grade: 'SP',
     check: 'The strongest. Infinity means you cannot touch him. ...Unless you turn the rule off.',
     barks: ['"Go ahead. Try to touch me."', '"Nah, Infinity."', '"Hollow Technique: Purple."'],
     infinity: true, sparring: true, endAt: .55,
@@ -121,7 +121,7 @@ const ENEMIES = {
   },
   sukuna: {
     name: 'Ryomen Sukuna', spr: 'sukuna', hp: 1500, atk: 38, def: 18, xp: 2000, money: 3000,
-    scale: 6, patterns: ['cleave', 'slashrain', 'fuga', 'spin', 'grid'], music: 'sukuna', grade: 'SP+',
+    scale: 6, patterns: ['cleave', 'shrine', 'fuga', 'slashrain', 'spin'], music: 'sukuna', grade: 'SP+',
     check: 'The King of Curses. 1500 HP. A thousand years of winning. He is already bored of you.',
     barks: ['"Is that your best attack?"', '"Stand proud. You are strong."', '"Cleave."', '"Dismantle."',
             '"A child cannot rewrite the King."'],
@@ -134,45 +134,45 @@ const ENEMIES = {
   /* ===== Chapter 1 additions ===== */
   junpeiMahito: {
     name: 'Mahito (Theatre)', spr: 'mahito', hp: 240, atk: 18, def: 6, xp: 260, money: 380,
-    scale: 5, patterns: ['hands', 'homing'], music: 'shibuya', grade: 'SP',
+    scale: 5, patterns: ['handwall', 'soulgrab', 'homing'], music: 'shibuya', grade: 'SP',
     check: 'He is not fighting you. He is showing you something he made.',
     barks: ['"Do you like him? I made him myself."', '"Souls are so easy to fold."', '"Junpei. Say hello."']
   },
   eso: {
     name: 'Eso & Kechizu', spr: 'curseBig', hp: 300, atk: 19, def: 8, xp: 320, money: 480,
-    scale: 4, patterns: ['rain', 'homing', 'bugs'], music: 'battle', grade: '1',
+    scale: 4, patterns: ['blood', 'rain', 'bugs'], music: 'battle', grade: '1',
     check: 'Death Painting Wombs. Brothers. Their blood is poison and they are very proud of that.',
     barks: ['"Brother, it is a child."', '"Decay."', '"Our blood will rot you from inside."']
   },
   choso: {
     name: 'Choso', spr: 'curseBig', hp: 420, atk: 23, def: 11, xp: 420, money: 620,
-    scale: 5, patterns: ['cleave', 'homing', 'rain', 'spin'], music: 'boss', grade: 'SP',
+    scale: 5, patterns: ['blood', 'homing', 'rain', 'spin'], music: 'boss', grade: 'SP',
     check: 'The eldest Death Painting. He just watched you kill his brothers.',
     barks: ['"Blood Manipulation: Piercing Blood."', '"You took my brothers."', '"Convergence."'],
     phases: [{ at: .4, bark: 'Choso turns his own blood supersonic.', buff: { atk: 6 } }]
   },
   mechamaru: {
     name: 'Mechamaru', spr: 'curseBig', hp: 380, atk: 21, def: 14, xp: 380, money: 560,
-    scale: 5, patterns: ['laser', 'grid', 'rain'], music: 'boss', grade: '1',
+    scale: 5, patterns: ['artillery', 'laser', 'grid'], music: 'boss', grade: '1',
     check: 'A puppet piloted from a hospital bed. The body is scrap. The aim is not.',
     barks: ['"Ultimate Mechamaru: Mode - Absolute."', '"I made a deal with a curse."', '"Forgive me."']
   },
   toji: {
     name: 'Toji Fushiguro', spr: 'toji', hp: 560, atk: 30, def: 12, xp: 700, money: 1000,
-    scale: 5, patterns: ['cleave', 'spin', 'homing', 'slashrain'], music: 'boss', grade: '??',
+    scale: 5, patterns: ['chains', 'cleave', 'spin'], music: 'boss', grade: '??',
     check: 'No cursed energy at all. Zero. The Heavenly Restriction gave him everything else.',
     barks: ['"Sorcerer Killer."', '"Playful Cloud."', '"You read data? I read bodies."'],
     phases: [{ at: .45, bark: 'Toji pulls the Inverted Spear of Heaven.', buff: { atk: 8 } }]
   },
   getoPast: {
     name: 'Suguru Geto', spr: 'geto', hp: 520, atk: 26, def: 13, xp: 640, money: 900,
-    scale: 5, patterns: ['homing', 'rain', 'bugs', 'grid'], music: 'boss', grade: 'SP',
+    scale: 5, patterns: ['curses', 'homing', 'bugs', 'rain'], music: 'boss', grade: 'SP',
     check: 'Curse Manipulation. He is carrying a thousand curses and all of his certainty.',
     barks: ['"Are monkeys worth protecting?"', '"Uzumaki."', '"Night Parade of a Hundred Demons."']
   },
   yutaDuel: {
     name: 'Yuta Okkotsu', spr: 'yuta', hp: 620, atk: 28, def: 14, xp: 800, money: 1200,
-    scale: 5, patterns: ['cleave', 'purple', 'homing', 'grid'], music: 'boss', grade: 'SP',
+    scale: 5, patterns: ['cleave', 'hollowpurple', 'soulgrab', 'grid'], music: 'boss', grade: 'SP',
     check: 'Special grade. Copies techniques, carries a cursed spirit that loved him, and was sent here to execute a friend.',
     barks: ['"I was ordered to execute Yuji Itadori."', '"Rika."', '"Pure Love Whip."'],
     friendly: true, spareAt: .3,
@@ -192,7 +192,7 @@ const ENEMIES = {
   },
   mahoragaC1: {
     name: 'Divine General Mahoraga', spr: 'mahoraga', hp: 900, atk: 34, def: 20, xp: 1400, money: 2200,
-    scale: 6, patterns: ['cleave', 'spin', 'slashrain', 'grid'], music: 'sukuna', grade: 'SP+',
+    scale: 6, patterns: ['wheel', 'cleave', 'slashrain', 'grid'], music: 'sukuna', grade: 'SP+',
     check: 'The Ten Shadows\' last resort. It adapts to anything that hits it. Anything.',
     barks: ['The wheel on its head turns one notch.', 'It has already seen that attack.', 'It adapts.'],
     phases: [
@@ -204,27 +204,27 @@ const ENEMIES = {
   /* ===== Chapter 2 : the Culling Game ===== */
   reggie: {
     name: 'Reggie Star', spr: 'reggie', hp: 520, atk: 24, def: 11, xp: 600, money: 900,
-    scale: 5, patterns: ['rain', 'homing', 'grid', 'laser'], music: 'boss', grade: '1',
+    scale: 5, patterns: ['receipts', 'rain', 'grid', 'laser'], music: 'boss', grade: '1',
     check: 'Turns receipts into whatever was printed on them. A man who weaponised paperwork.',
     barks: ['"Everything has a price, kid."', '"I bought a car this morning."', '"Receipts never lie."']
   },
   charles: {
     name: 'Charles Bernard', spr: 'charles', hp: 460, atk: 25, def: 10, xp: 520, money: 800,
-    scale: 5, patterns: ['cleave', 'homing', 'spin'], music: 'battle', grade: '1',
+    scale: 5, patterns: ['manga', 'cleave', 'homing'], music: 'battle', grade: '1',
     check: 'He can see your next three seconds drawn as manga panels. He is also just a guy who wants to finish his series.',
     barks: ['"I can see your next panel."', '"My serialisation depends on this!"', '"Draw!"'],
     friendly: true, spareAt: .35
   },
   kirara: {
     name: 'Kirara Hoshi', spr: 'kirara', hp: 480, atk: 22, def: 12, xp: 560, money: 860,
-    scale: 5, patterns: ['grid', 'homing', 'spin', 'laser'], music: 'boss', grade: '1',
+    scale: 5, patterns: ['magnet', 'grid', 'spin', 'laser'], music: 'boss', grade: '1',
     check: 'Love Rendezvous. Everything they touch gets magnetised to everything else. Hakari\'s partner, and extremely not interested in you.',
     barks: ['"Do NOT scuff the floor."', '"Love Rendezvous."', '"Hakari, this one is rude."'],
     friendly: true, spareAt: .3
   },
   hakari: {
     name: 'Kinji Hakari', spr: 'hakari', hp: 900, atk: 30, def: 15, xp: 1400, money: 2000,
-    scale: 5, patterns: ['cleave', 'spin', 'homing', 'grid'], music: 'boss', grade: 'SP',
+    scale: 5, patterns: ['jackpot', 'cleave', 'spin', 'grid'], music: 'boss', grade: 'SP',
     check: 'Special grade. Infinite cursed energy and immortality for 4 minutes 11 seconds \u2014 if the machine pays out.',
     barks: ['"Let\'s gamble!"', '"Domain Expansion: Idle Death Gamble."', '"JACKPOT!"'],
     domain: 'purelove',
@@ -235,7 +235,7 @@ const ENEMIES = {
   },
   higuruma: {
     name: 'Hiromi Higuruma', spr: 'higuruma', hp: 760, atk: 28, def: 14, xp: 1100, money: 1700,
-    scale: 5, patterns: ['grid', 'cleave', 'laser', 'homing'], music: 'boss', grade: 'SP',
+    scale: 5, patterns: ['gavel', 'grid', 'laser', 'homing'], music: 'boss', grade: 'SP',
     check: 'Awakened three weeks ago. Already has a domain. Inside it, the court decides what you deserve.',
     barks: ['"Domain Expansion: Deadly Sentencing."', '"The defendant will be seated."', '"Judgeman."'],
     domain: 'judgeman',
@@ -243,40 +243,40 @@ const ENEMIES = {
   },
   takaba: {
     name: 'Fumihiko Takaba', spr: 'takaba', hp: 999, atk: 20, def: 5, xp: 900, money: 1500,
-    scale: 5, patterns: ['bullets', 'homing', 'spin'], music: 'orange', grade: '??',
+    scale: 5, patterns: ['comedy', 'bullets', 'homing'], music: 'orange', grade: '??',
     check: 'Whatever he finds funny becomes real. There is no counter to this. There is only playing along.',
     barks: ['"Is this a bit? Is this a bit??"', '"COMEDY."', '"Wait, wait, I have one \u2014"'],
     friendly: true, spareAt: .5
   },
   kashimo: {
     name: 'Hajime Kashimo', spr: 'kashimo', hp: 1050, atk: 34, def: 16, xp: 1800, money: 2600,
-    scale: 5, patterns: ['laser', 'grid', 'spin', 'homing', 'cleave'], music: 'boss', grade: 'SP',
+    scale: 5, patterns: ['electric', 'laser', 'spin', 'cleave'], music: 'boss', grade: 'SP',
     check: 'Four hundred years old. Reincarnated to find a fight worth having. Electricity, and a very low opinion of everyone.',
     barks: ['"Mythical Beast Amber."', '"Are you the strongest?"', '"Four hundred years and still bored."'],
     phases: [{ at: .4, bark: 'Kashimo discharges everything at once.', buff: { atk: 10 } }]
   },
   uro: {
     name: 'Takako Uro', spr: 'kirara', hp: 640, atk: 27, def: 13, xp: 820, money: 1200,
-    scale: 5, patterns: ['cleave', 'spin', 'grid'], music: 'boss', grade: 'SP',
+    scale: 5, patterns: ['sky', 'cleave', 'spin'], music: 'boss', grade: 'SP',
     check: 'A thousand-year-old sorcerer who treats the sky itself as a surface she can hit you with.',
     barks: ['"Sky Manipulation."', '"You are very new."', '"Thin Ice Breaker."']
   },
   ryu: {
     name: 'Ryu Ishigori', spr: 'curseBig', hp: 700, atk: 31, def: 12, xp: 900, money: 1300,
-    scale: 6, patterns: ['laser', 'meteor', 'rain'], music: 'boss', grade: 'SP',
+    scale: 6, patterns: ['granite', 'meteor', 'rain'], music: 'boss', grade: 'SP',
     check: 'Output. That is the whole technique. Just an enormous amount of output.',
     barks: ['"GRANITE BLAST."', '"MORE."', '"Is that all you have?"']
   },
   angel: {
     name: 'Angel (Hana Kurusu)', spr: 'angel', hp: 820, atk: 29, def: 15, xp: 1300, money: 1900,
-    scale: 5, patterns: ['laser', 'rain', 'homing', 'grid'], music: 'boss', grade: 'SP',
+    scale: 5, patterns: ['hollowpurple', 'laser', 'rain', 'grid'], music: 'boss', grade: 'SP',
     check: 'A sorcerer from a thousand years ago riding in a schoolgirl. Her technique erases cursed techniques outright.',
     barks: ['"Jacob\'s Ladder."', '"You are an abomination, little administrator."', '"I can undo the Prison Realm."'],
     friendly: true, spareAt: .3
   },
   sukunaMegumi: {
     name: 'Sukuna (Megumi\'s Body)', spr: 'megumiSukuna', hp: 1600, atk: 38, def: 20, xp: 3000, money: 4200,
-    scale: 6, patterns: ['cleave', 'slashrain', 'spin', 'grid', 'fuga'], music: 'sukuna', grade: 'SP+',
+    scale: 6, patterns: ['divinedogs', 'nue', 'shrine', 'cleave', 'grid'], music: 'sukuna', grade: 'SP+',
     check: 'He is wearing your friend. The Ten Shadows answer to him now.',
     barks: ['"The brat is still in here. He is watching."', '"Cleave."', '"Divine Dogs."'],
     phases: [
@@ -287,7 +287,7 @@ const ENEMIES = {
   },
   gojoVsSukuna: {
     name: 'Satoru Gojo (Unsealed)', spr: 'gojoEyes', hp: 1200, atk: 34, def: 18, xp: 2200, money: 3000,
-    scale: 5, patterns: ['purple', 'laser', 'grid', 'homing'], music: 'boss', grade: 'SP+',
+    scale: 5, patterns: ['redblue', 'hollowpurple', 'laser', 'grid'], music: 'boss', grade: 'SP+',
     check: 'Nineteen days in a box and he came out smiling. He wants to see how far you have come.',
     barks: ['"Hollow Technique: Purple."', '"Nah, I\'d win."', '"Show me, kiddo."'],
     sparring: true, endAt: .5, friendly: true,
@@ -295,7 +295,7 @@ const ENEMIES = {
   },
   sukunaFinal: {
     name: 'Ryomen Sukuna (True Form)', spr: 'sukuna', hp: 2400, atk: 42, def: 24, xp: 6000, money: 9000,
-    scale: 6, patterns: ['cleave', 'slashrain', 'fuga', 'spin', 'grid', 'meteor'], music: 'sukuna', grade: 'SP+',
+    scale: 6, patterns: ['shrine', 'cleave', 'fuga', 'divinedogs', 'slashrain', 'meteor'], music: 'sukuna', grade: 'SP+',
     check: 'Four arms. Two faces. A thousand years. He has stopped being bored.',
     barks: ['"Stand proud. You are strong."', '"Malevolent Shrine."', '"Fuga."', '"Open."'],
     phases: [
@@ -307,7 +307,7 @@ const ENEMIES = {
   },
   kenjakuBoss: {
     name: 'Kenjaku', spr: 'kenjaku', hp: 1400, atk: 33, def: 18, xp: 2600, money: 3800,
-    scale: 5, patterns: ['bugs', 'rain', 'homing', 'grid', 'cleave'], music: 'culling', grade: 'SP+',
+    scale: 5, patterns: ['curses', 'bugs', 'rain', 'grid', 'cleave'], music: 'culling', grade: 'SP+',
     check: 'A thousand years of wearing other people. He wrote the rules of the game you are standing in.',
     barks: ['"Hello again, little administrator."', '"Uzumaki."', '"You are the most interesting variable on my board."'],
     phases: [
@@ -317,7 +317,7 @@ const ENEMIES = {
   },
   mahoragaFinal: {
     name: 'Mahoraga (Adapted)', spr: 'mahoraga', hp: 1500, atk: 40, def: 26, xp: 3200, money: 4600,
-    scale: 6, patterns: ['cleave', 'spin', 'slashrain', 'grid', 'laser'], music: 'sukuna', grade: 'SP+',
+    scale: 6, patterns: ['wheel', 'shrine', 'cleave', 'granite'], music: 'sukuna', grade: 'SP+',
     check: 'It has adapted to every technique used on it today, including yours. The wheel is still turning.',
     barks: ['The wheel turns.', 'It has adapted.', 'World-Cutting Slash.'],
     phases: [{ at: .5, bark: 'It has adapted to Digital Genesis itself.', buff: { def: 12 } }]
