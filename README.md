@@ -8,15 +8,35 @@ Play it: **https://fomomrjb.github.io/digital-genesis/**
 
 ---
 
-## Chapter 1
+## The story
 
-Thirteen story missions, from the Shibuya subway where Kenji's technique
-awakened to the ruins of Shinjuku and the first move of the Culling Game.
-Roughly an hour to finish, longer if you take side missions, grind Orange's
-challenges, and buy out the shop.
+It follows the anime arc by arc, with Kenji written into it.
 
-Progression is manga-paced: every arc guarantees the techniques Kenji has in
-that arc, so you unlock things in the order the story earns them.
+**Chapter 1 — The Strongest's Student** (22 missions, levels 1-30)
+The Shibuya subway awakening · Gojo's rooftop recruitment · Jujutsu High ·
+first exorcism · Junpei at the cinema · the Cursed Womb finger bearer ·
+Yasohachi Bridge · the Death Painting brothers and Choso · the Kyoto
+Goodwill Event · Hanami in the west woods · Mechamaru's betrayal ·
+Hidden Inventory and Premature Death as playable flashbacks (Toji, then
+Geto) · Yuta's execution order · the Shibuya Incident across five
+missions — Jogo, the Prison Realm, Dagon, Nanami's overtime, Mahito —
+Sukuna's rampage into Mahoraga · Shinjuku · the Culling Game broadcast.
+
+**Chapter 2 — The Culling Game** (9 missions, levels 31-47)
+Tengen and rule ten · Tokyo No.1 with Megumi and Reggie Star · Tokyo No.2
+with Charles Bernard, Kirara Hoshi and Kinji Hakari's Idle Death Gamble ·
+Sendai with Yuta against Uro and Ryu · Higuruma's courtroom · Takaba ·
+Kashimo · and a cliffhanger with a hundred points banked and rule ten
+unspent.
+
+Chapter 2 sits behind a spoiler gate on the chapter select, because it
+starts after the Shibuya Incident. Material past that point is written
+but parked in `CHAPTER2_LOCKED` and deliberately left out of the chapter
+registry — nothing from it can appear in game until it is added back.
+
+## Progression
+
+Manga-paced: every arc guarantees the techniques Kenji has in that arc.
 
 | Level | Unlocked |
 |---|---|
@@ -30,7 +50,8 @@ that arc, so you unlock things in the order the story earns them.
 | 17 | **Black Flash** |
 | 20 | **Domain Expansion: Sandbox Mode — Developer Tools** |
 | 25 | **Domain Expansion: Error 404 — Cosmos Format** |
-| 30 | **Orange Flash** (100x the impact of a black flash) |
+| 30 | **Orange Flash** |
+| 33-60 | Null Zone · Solver: Skyline · Packet Loss · Soul Trade · Binding Vow: Overclock · **Dual Domain** · Orange Admin Ban · **Orange Flash: Full Release** |
 
 ## Systems
 

@@ -189,6 +189,19 @@ const Game = {
     return o;
   },
 
+  /* ---------- spoiler gate ---------- */
+  spoilerGate(ch, go) {
+    Dlg.start([
+      { who: 'sys', t: 'SPOILER CHECK', col: PAL.yellow },
+      { who: 'sys', t: 'CHAPTER ' + ch.n + ' STARTS AFTER THE SHIBUYA INCIDENT.\nIt covers the Culling Game: Tengen and the rules, the Tokyo colonies,\nHakari and Kirara, Sendai, Higuruma, Takaba and Kashimo.' },
+      { who: 'sys', t: 'It stops before anything later. Nothing about what happens to\nGojo, Megumi or Sukuna after Shibuya appears anywhere in it.' },
+      { q: 'Has the anime got this far for you?', choice: [
+        { t: 'Yes \u2014 play Chapter 2', fn: () => { G.flags.spoiler_ok = true; G.save(); go(); } },
+        { t: 'Not yet \u2014 take me back', fn: () => { Audio.sfx('cancel'); } }
+      ] }
+    ]);
+  },
+
   /* ---------- chapter select ---------- */
   upChapters(dt) {
     const n = CHAPTERS.length;
@@ -199,7 +212,10 @@ const Game = {
       const ch = CHAPTERS[this.chapIdx];
       if (ch.n > 1 && !G.flags['ch' + (ch.n - 1) + '_done']) { Audio.sfx('deny'); return; }
       Audio.sfx('ok');
-      Fade.out(() => { Story.startChapter(ch.n); Fade.in(); }, 2.2);
+      const start = () => Fade.out(() => { Story.startChapter(ch.n); Fade.in(); }, 2.2);
+      /* anything after Chapter 1 goes past the Shibuya Incident - ask first */
+      if (ch.n > 1 && !G.flags.spoiler_ok) { this.spoilerGate(ch, start); return; }
+      start();
     }
   },
   drawChapters() {
@@ -220,6 +236,8 @@ const Game = {
       textC(ch.title.toUpperCase(), W / 2, y + 30, { scale: 3, color: locked ? '#3a4254' : '#fff', shadow: '#000' });
       textC(locked ? 'FINISH CHAPTER ' + (ch.n - 1) + ' FIRST' : ch.sub, W / 2, y + 58,
         { scale: 1, color: locked ? PAL.red : '#8fa0bd' });
+      if (ch.n > 1 && !locked)
+        text(G.flags.spoiler_ok ? '' : 'POST-SHIBUYA', W - 150, y + 24, { scale: 1, color: PAL.yellow });
       if (done) text('CLEARED', W - 150, y + 10, { scale: 1, color: PAL.green });
       text(ch.missions.length + ' MISSIONS', 76, y + 10, { scale: 1, color: '#55637d' });
     });
