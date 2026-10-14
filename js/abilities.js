@@ -45,7 +45,7 @@ const ABILITIES = [
   { id: 'o_disguise', name: 'Orange Disguise', jp: 'オレンジ・スキン', kanji: '貌', lv: 1,
     type: 'transform', cost: 0, power: 3.4, col: '#f2f2ee', colD: '#07070b', sfx: 'ghostface',
     tag: 'ULTRA', branch: 'ORANGE Suite', turns: 4, once: true,
-    desc: 'Ghost Face robe, white mask, golden Executioner knife. Every strike ignores defence and binding vows and cuts life code directly. ONE use per fight.' },
+    desc: 'Ghost Face robe, white mask, golden Executioner knife. Every strike ignores defence, binding vows and even Infinity, cutting straight into life code — half the target\'s max HP a swing. ONE use per fight.' },
 
   /* ============ DIGITAL GENESIS ============ */
   { id: 'null', name: 'Null', jp: 'ヌル', kanji: '零', lv: 3, type: 'debuff',

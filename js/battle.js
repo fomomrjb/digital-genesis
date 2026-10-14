@@ -264,6 +264,7 @@ const Battle = {
     const perfectCount = b.results.filter(r => r === 1).length;
     const allPerfect = b.perfectAll && comboN === b.hits;
     let dmg = Math.max(1, Math.round(G.atkTotal() * ab.power * mult * (this.playerBuff.atk || 1)) - this.edefNow());
+    if (this.inGhost()) dmg = this.ghostDmg(dmg);
     this.tension = clamp(this.tension + comboN * 6 + perfectCount * 5, 0, this.tensionMax);
 
     const ex = this.enemyX(), ey = this.enemyY();
@@ -341,8 +342,10 @@ const Battle = {
         Audio.sfx('ghostface');
         FX.flash('#07070b', .5, .9); FX.shake(10, .8);
         FX.burst(this.playerX(), this.playerY(), 40, { kind: 'pixel', col: '#f2f2ee', size: 5, life: 1.2 });
-        this.say('* ORANGE DISGUISE. Black robe. White mask. A golden knife that cuts life code.');
-        this.bark('ORANGE: "oh no. oh NO. he brought out the knife."');
+        this.say('* ORANGE DISGUISE. Black robe. White mask. A golden knife that cuts life code.\n* Defence, binding vows and Infinity no longer apply. Two swings is all it takes.');
+        this.bark(this.e.infinity
+          ? 'ORANGE: "the knife doesnt go THROUGH the space. it just ARRIVES."'
+          : 'ORANGE: "oh no. oh NO. he brought out the knife."');
         break;
       case 'null':
         this.enemyDebuff.null = ab.turns; this.enemyDebuff.skipNext = true;
@@ -393,15 +396,21 @@ const Battle = {
     this.selKind = 'copy'; this.copyList = list; this.idx = 0; this.st = 'selectcopy';
   },
 
+  /* the Executioner's knife: ignores defensive metrics AND binding vows,
+     and cuts straight into the target's life code -> half their max HP a swing */
+  inGhost() { return this.transform === 'ghostface'; },
+  ghostDmg(d) { return Math.max(Math.round(d * 2.4), Math.ceil(this.ehpMax * .5)); },
+
   calcDmg(ab, pierce) {
-    const def = pierce || ab.pierce ? 0 : this.edefNow();
+    const def = pierce || ab.pierce || this.inGhost() ? 0 : this.edefNow();
     let d = Math.max(1, Math.round(G.atkTotal() * (ab.power || 1) * 1.8 * (this.playerBuff.atk || 1)) - def);
-    if (this.transform === 'ghostface') d = Math.round(d * 2.4);
+    if (this.inGhost()) d = this.ghostDmg(d);
     if (G.oneShot) d = 99999;
     return d;
   },
   edefNow() {
     let d = this.edef;
+    if (this.inGhost()) return 0;                        // nothing defends against the knife
     if (this.enemyDebuff.null) d = 0;
     if (this.e.infinity && !G.has('null')) d = 999;      // can't touch Gojo without Null
     if (this.e.infinity && this.enemyDebuff.null) d = 0;
@@ -409,7 +418,12 @@ const Battle = {
   },
 
   dealDamage(d, o = {}) {
-    if (this.e.infinity && !this.enemyDebuff.null && !this.enemyDebuff.infinityOff && !G.god) {
+    if (this.e.infinity && this.inGhost()) {
+      // the golden knife does not travel through the space Infinity divides
+      FX.pop(this.enemyX(), this.enemyY() - 30, 'INFINITY BYPASSED', { col: '#f2f2ee', scale: 2 });
+      FX.burst(this.enemyX(), this.enemyY(), 18, { kind: 'spark', col: '#ffd24a', size: 4, life: .6 });
+    }
+    if (this.e.infinity && !this.inGhost() && !this.enemyDebuff.null && !this.enemyDebuff.infinityOff && !G.god) {
       FX.pop(this.enemyX(), this.enemyY() - 30, 'INFINITY', { col: PAL.cyan, scale: 2 });
       Audio.sfx('block');
       this.say('* Your hand slows to a stop an inch away. Infinity. (Try NULL.)');
@@ -422,6 +436,13 @@ const Battle = {
   },
   checkDeath() {
     if (this.ehp <= 0 && !this.e.noDeath) { this.win(); }
+    // one connect with the Executioner's knife and a sparring partner calls it
+    else if (this.e.sparring && this.inGhost() && this.ehp < this.ehpMax) {
+      this.say('* The knife lands. The match is over the instant it touches him.');
+      this.bark('"OKAY. OKAY! Match. That\'s the match, kiddo."');
+      FX.pop(this.enemyX(), this.enemyY() - 50, 'MATCH OVER', { col: '#ffd24a', scale: 3, crit: true });
+      this.win(true);
+    }
     else if (this.e.sparring && this.ehp / this.ehpMax <= (this.e.endAt || .35)) { this.win(true); }
   },
   checkPhases() {
@@ -930,7 +951,8 @@ const Battle = {
       if (this.enemyDebuff.null) chip('NULLED', PAL.green);
       if (this.enemyDebuff.lag) chip('LAG 3.0s', PAL.yellow);
       if (this.enemyDebuff.mute) chip('MUTED', PAL.orange);
-      if (E.infinity && !this.enemyDebuff.null) chip('INFINITY', PAL.cyan);
+      if (E.infinity && this.inGhost()) chip('INFINITY BYPASSED', '#f2f2ee');
+      else if (E.infinity && !this.enemyDebuff.null) chip('INFINITY', PAL.cyan);
       if (this.enemyDomainDef) chip('DOMAIN', PAL.red);
     }
     // ---- player side ----
@@ -1025,7 +1047,7 @@ const Battle = {
     if (this.transform === 'ghostface') {
       ctx.save(); ctx.globalAlpha = .3 + Math.sin(this.t * 6) * .1;
       circle(px, py - 20, 44, '#f2f2ee', false); ctx.restore();
-      textC('GHOST FACE  [' + this.transformT + ']', px, py + 30, { scale: 1, color: '#f2f2ee', shadow: '#000' });
+      textC('GHOST FACE  [' + this.transformT + ']', px, py - 62, { scale: 1, color: '#f2f2ee', shadow: '#000' });
     }
   },
 
