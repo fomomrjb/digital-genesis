@@ -8,40 +8,40 @@
 const ENEMIES = {
   /* ---------- fodder ---------- */
   grade4: {
-    name: 'Grade 4 Curse', spr: 'curseBlob', hp: 34, atk: 7, def: 1, xp: 26, money: 55,
+    name: 'Grade 4 Curse', spr: 'curseBlob', hp: 40, atk: 7, def: 1, xp: 26, money: 55,
     scale: 3, patterns: ['bullets', 'homing'], music: 'battle', grade: '4',
-    check: 'A badly coded program. 34 HP. It smells like a wet gym bag.',
+    check: 'A badly coded program. 40 HP. It smells like a wet gym bag.',
     barks: ['*gurgling*', 'The curse wobbles menacingly.', 'It tries to look big.'],
     spareAt: .3
   },
   swarm: {
-    name: 'Curse Swarm', spr: 'curseBug', hp: 48, atk: 8, def: 2, xp: 40, money: 80,
+    name: 'Curse Swarm', spr: 'curseBug', hp: 60, atk: 8, def: 2, xp: 40, money: 80,
     scale: 3, patterns: ['bugs', 'bullets'], music: 'battle', grade: '4',
     check: 'Several small curses pretending to be one big curse.',
     barks: ['*skittering*', 'They are arguing about who leads.', 'Chitter chitter.']
   },
   grade2: {
-    name: 'Grade 2 Curse', spr: 'curseBlob', hp: 86, atk: 12, def: 4, xp: 85, money: 150,
+    name: 'Grade 2 Curse', spr: 'curseBlob', hp: 110, atk: 12, def: 4, xp: 85, money: 150,
     scale: 4, patterns: ['bullets', 'homing', 'rain'], music: 'battle', grade: '2',
-    check: '86 HP. Actually finished its tutorial, unlike the last one.',
+    check: '110 HP. Actually finished its tutorial, unlike the last one.',
     barks: ['It roars with real weight.', 'The air gets heavy.', '*SHRIEK*']
   },
   grade1: {
-    name: 'Grade 1 Curse', spr: 'curseBig', hp: 150, atk: 17, def: 7, xp: 180, money: 300,
+    name: 'Grade 1 Curse', spr: 'curseBig', hp: 210, atk: 17, def: 7, xp: 180, money: 300,
     scale: 4, patterns: ['cleave', 'rain', 'homing', 'spin'], music: 'battle', grade: '1',
-    check: 'Grade 1. 150 HP. It has a mouth where a mouth should not be.',
+    check: 'Grade 1. 210 HP. It has a mouth where a mouth should not be.',
     barks: ['It grins with a hundred teeth.', 'The floor cracks under it.', '*ROAAAR*']
   },
   fingerBearer: {
-    name: 'Finger Bearer', spr: 'curseBig', hp: 210, atk: 20, def: 9, xp: 240, money: 420,
+    name: 'Finger Bearer', spr: 'curseBig', hp: 300, atk: 20, def: 9, xp: 240, money: 420,
     scale: 5, patterns: ['cleave', 'spin', 'rain', 'grid'], music: 'boss', grade: 'SP',
     check: 'It swallowed one of Sukuna\'s fingers. The finger is doing the thinking.',
     barks: ['The finger pulses.', 'It moves like something else is driving.', '*WET GURGLE*']
   },
   specialSubway: {
-    name: 'Special Grade Curse', spr: 'curseBig', hp: 120, atk: 22, def: 6, xp: 150, money: 200,
+    name: 'Special Grade Curse', spr: 'curseBig', hp: 100, atk: 22, def: 6, xp: 150, money: 200,
     scale: 5, patterns: ['cleave', 'rain', 'homing'], music: 'boss', grade: 'SP',
-    check: 'Special Grade. It is killing everyone in this station. ...It is also very poorly coded.',
+    check: 'Special Grade. 100 HP. It is killing everyone in this station. ...It is also very poorly coded.',
     barks: ['It tears a pillar out of the ceiling.', 'Screaming echoes down the platform.', '*HOWLING*'],
     tutorial: true
   },
@@ -55,7 +55,7 @@ const ENEMIES = {
     noDeath: true
   },
   droneSwarm: {
-    name: 'Orange Target Drones', spr: 'curseBug', hp: 240, atk: 14, def: 3, xp: 150, money: 260,
+    name: 'Orange Target Drones', spr: 'curseBug', hp: 320, atk: 14, def: 3, xp: 150, money: 260,
     scale: 3, patterns: ['bullets', 'grid', 'laser', 'spin'], music: 'orange', grade: 'C',
     check: 'Orange spawned these out of Creative Mode. He insists they are "legally distinct".',
     barks: ['ORANGE: "dodge this one!! DODGE IT"', 'The drones re-render.', 'ORANGE: "im not even trying yet"']
@@ -63,37 +63,37 @@ const ENEMIES = {
 
   /* ---------- named ---------- */
   todo: {
-    name: 'Aoi Todo', spr: 'yuji', hp: 260, atk: 19, def: 8, xp: 300, money: 500,
+    name: 'Aoi Todo', spr: 'yuji', hp: 360, atk: 19, def: 8, xp: 300, money: 500,
     scale: 4, patterns: ['cleave', 'homing', 'spin'], music: 'boss', grade: '1',
-    check: 'Grade 1 sorcerer. 260 HP. Will ask you about your type of woman mid-swing.',
+    check: 'Grade 1 sorcerer. 360 HP. Will ask you about your type of woman mid-swing.',
     barks: ['"WHAT KIND OF WOMAN IS YOUR TYPE?"', '"Boogie Woogie."', '"My brother!!"'],
     friendly: true, spareAt: .35
   },
   hanami: {
-    name: 'Hanami', spr: 'hanami', hp: 320, atk: 22, def: 12, xp: 420, money: 700,
+    name: 'Hanami', spr: 'hanami', hp: 520, atk: 22, def: 12, xp: 420, money: 700,
     scale: 5, patterns: ['thorns', 'rain', 'homing', 'grid'], music: 'boss', grade: 'SP',
-    check: 'Special Grade. 320 HP. It wants the humans gone so the forest can breathe.',
+    check: 'Special Grade. 520 HP. It wants the humans gone so the forest can breathe.',
     barks: ['"...Jujutsu sorcerer."', 'Wooden branches creak outward.', 'Flower buds open — poison.'],
     phases: [{ at: .5, bark: 'Hanami hardens its bark. Defence up.', buff: { def: 6 } }]
   },
   jogo: {
-    name: 'Jogo', spr: 'jogo', hp: 300, atk: 26, def: 10, xp: 400, money: 680,
+    name: 'Jogo', spr: 'jogo', hp: 500, atk: 26, def: 10, xp: 400, money: 680,
     scale: 5, patterns: ['fire', 'rain', 'homing'], music: 'boss', grade: 'SP',
-    check: 'Special Grade. 300 HP. Claims to be as strong as Hanami. Nobody agrees.',
+    check: 'Special Grade. 500 HP. Claims to be as strong as Hanami. Nobody agrees.',
     barks: ['"Insolent monkey."', 'The air shimmers at 200°C.', '"I will erase this city."'],
     phases: [{ at: .4, bark: 'Jogo prepares MAXIMUM: METEOR.', pattern: 'meteor' }]
   },
   dagon: {
-    name: 'Dagon', spr: 'dagon', hp: 340, atk: 24, def: 11, xp: 430, money: 720,
+    name: 'Dagon', spr: 'dagon', hp: 560, atk: 24, def: 11, xp: 430, money: 720,
     scale: 5, patterns: ['water', 'homing', 'grid'], music: 'boss', grade: 'SP',
-    check: 'Special Grade. 340 HP. Newly born. Already drowning a whole district.',
+    check: 'Special Grade. 560 HP. Newly born. Already drowning a whole district.',
     barks: ['"...Shikigami."', 'Water rises out of nothing.', 'Death Swarm: fish.'],
     domain: 'selfembodiment'
   },
   mahito: {
-    name: 'Mahito', spr: 'mahito', hp: 400, atk: 25, def: 10, xp: 520, money: 900,
+    name: 'Mahito', spr: 'mahito', hp: 650, atk: 25, def: 10, xp: 520, money: 900,
     scale: 5, patterns: ['hands', 'homing', 'bugs', 'grid'], music: 'shibuya', grade: 'SP',
-    check: 'Special Grade. 400 HP. Souls are toys to him. Your soul is a toy he cannot open.',
+    check: 'Special Grade. 650 HP. Souls are toys to him. Your soul is a toy he cannot open.',
     barks: ['"A child? Jujutsu High must be desperate!"', '"Let me see what shape your soul takes!"',
             '"Idle Transfiguration!"'],
     phases: [
@@ -102,27 +102,27 @@ const ENEMIES = {
     ]
   },
   mahitoFinal: {
-    name: 'Mahito (Perfected)', spr: 'mahito', hp: 300, atk: 30, def: 14, xp: 600, money: 1100,
+    name: 'Mahito (Perfected)', spr: 'mahito', hp: 560, atk: 32, def: 14, xp: 600, money: 1100,
     scale: 5, patterns: ['hands', 'grid', 'cleave'], music: 'shibuya', grade: 'SP',
-    check: 'He has shed everything unnecessary. 300 HP of pure transfiguration.',
+    check: 'He has shed everything unnecessary. 560 HP of pure transfiguration.',
     barks: ['"I understand now. You are not changing the body."', '"You interrupt the connection!"',
             '"I will become perfect!"']
   },
   gojoSpar: {
-    name: 'Satoru Gojo', spr: 'gojo', hp: 600, atk: 28, def: 99, xp: 700, money: 1200,
+    name: 'Satoru Gojo', spr: 'gojo', hp: 360, atk: 26, def: 10, xp: 700, money: 1200,
     scale: 5, patterns: ['purple', 'homing', 'laser', 'grid'], music: 'boss', grade: 'SP',
     check: 'The strongest. Infinity means you cannot touch him. ...Unless you turn the rule off.',
     barks: ['"Go ahead. Try to touch me."', '"Nah, Infinity."', '"Hollow Technique: Purple."'],
-    infinity: true, sparring: true, endAt: .35,
+    infinity: true, sparring: true, endAt: .55,
     phases: [
       { at: .8, bark: 'Gojo pulls the blindfold off. Six Eyes.', swap: 'gojoEyes' },
       { at: .5, bark: 'Gojo forms a one-handed sign.', domain: 'infinitevoid' }
     ]
   },
   sukuna: {
-    name: 'Ryomen Sukuna', spr: 'sukuna', hp: 900, atk: 36, def: 18, xp: 2000, money: 3000,
+    name: 'Ryomen Sukuna', spr: 'sukuna', hp: 1500, atk: 38, def: 18, xp: 2000, money: 3000,
     scale: 6, patterns: ['cleave', 'slashrain', 'fuga', 'spin', 'grid'], music: 'sukuna', grade: 'SP+',
-    check: 'The King of Curses. 900 HP. A thousand years of winning. He is already bored of you.',
+    check: 'The King of Curses. 1500 HP. A thousand years of winning. He is already bored of you.',
     barks: ['"Is that your best attack?"', '"Stand proud. You are strong."', '"Cleave."', '"Dismantle."',
             '"A child cannot rewrite the King."'],
     phases: [

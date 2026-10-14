@@ -14,7 +14,7 @@ const G = {   // global game state
   lv: 1, xp: 0, money: 420,
   hp: 60, hpMax: 60,
   ce: 999, ceMax: 999,            // cursed energy: effectively infinite
-  atk: 9, def: 3, spd: 7,
+  atk: 14, def: 3, spd: 7,
   unlocked: {},                   // abilityId -> true
   seenUnlock: {},
   equippedSkin: 'default',
@@ -39,7 +39,7 @@ const G = {   // global game state
 
   /* ---------- derived ---------- */
   has(id) { return !!(this.unlocked[id] || this.allUnlocked); },
-  atkTotal() { return Math.round(this.atk * (1 + (this.lv - 1) * .13) * this.dmgMult); },
+  atkTotal() { return Math.round(this.atk * this.dmgMult); },   // atk already grows +2 per level
   defTotal() { return Math.round(this.def * (1 + (this.lv - 1) * .1)); },
 
   /* ---------- xp / level ---------- */
@@ -98,7 +98,7 @@ const G = {   // global game state
 
   reset() {
     const fresh = {
-      lv: 1, xp: 0, money: 420, hp: 60, hpMax: 60, ce: 999, ceMax: 999, atk: 9, def: 3, spd: 7,
+      lv: 1, xp: 0, money: 420, hp: 60, hpMax: 60, ce: 999, ceMax: 999, atk: 14, def: 3, spd: 7,
       unlocked: {}, seenUnlock: {}, equippedSkin: 'default', ownedSkins: { default: true },
       ownedEmotes: { wave: true }, equippedEmotes: ['wave', null, null, null, null, null],
       items: { snack: 3, battery: 1 }, chapter: 1, mission: 0, flags: {}, completed: {},

@@ -162,13 +162,30 @@ function drawHuman(p, d, dir, step, yo, walking, o) {
   p(7, by + 1, 2, 6, d.trim === '#2a3450' ? d.top2 : d.trim);
   // arms
   const sw = walking ? (step ? 1 : -1) : 0;
-  p(2, by + 1 + (sw > 0 ? 1 : 0), 2, 5, d.top);
-  p(12, by + 1 + (sw < 0 ? 1 : 0), 2, 5, d.top2);
-  p(2, by + 6 + (sw > 0 ? 1 : 0), 2, 1, d.skin);
-  p(12, by + 6 + (sw < 0 ? 1 : 0), 2, 1, d.skin2);
+  const po = o.pose;
+  if (po) {
+    // posed arms hang off the shoulder and clear the torso so they read
+    const arm = (sx, up, len, colA, colB) => {
+      const sh = by + 1;
+      if (up) { p(sx, sh - len, 2, len, colA); p(sx, sh - len - 1, 2, 1, colB); }
+      else { p(sx, sh, 2, len, colA); p(sx, sh + len, 2, 1, colB); }
+    };
+    arm(1 + (po.alx || 0), po.aup, po.all || 5, d.top, d.skin);
+    arm(13 + (po.arx || 0), po.aup2, po.arl || 5, d.top2, d.skin2);
+  } else {
+    p(2, by + 1 + (sw > 0 ? 1 : 0), 2, 5, d.top);
+    p(12, by + 1 + (sw < 0 ? 1 : 0), 2, 5, d.top2);
+    p(2, by + 6 + (sw > 0 ? 1 : 0), 2, 1, d.skin);
+    p(12, by + 6 + (sw < 0 ? 1 : 0), 2, 1, d.skin2);
+  }
   // legs
   const ly = by + 7;
-  if (walking) {
+  if (po) {
+    p(5 + (po.llx || 0), ly, 2, po.lll || 4, d.pants);
+    p(9 + (po.rlx || 0), ly, 2, po.rll || 4, d.pants);
+    p(4 + (po.llx || 0), ly + (po.lll || 4), 3, 1, d.shoes);
+    p(9 + (po.rlx || 0), ly + (po.rll || 4), 3, 1, d.shoes);
+  } else if (walking) {
     p(5, ly, 2, step ? 4 : 3, d.pants); p(9, ly, 2, step ? 3 : 4, d.pants);
     p(5, ly + (step ? 4 : 3), 2, 1, d.shoes); p(9, ly + (step ? 3 : 4), 2, 1, d.shoes);
   } else {
@@ -176,7 +193,7 @@ function drawHuman(p, d, dir, step, yo, walking, o) {
     p(4, ly + 4, 3, 1, d.shoes); p(9, ly + 4, 3, 1, d.shoes);
   }
   // accessories
-  if (d.acc === 'console' && dir !== 3) {
+  if (d.acc === 'console' && dir !== 3 && !o.pose) {
     p(1, by + 4, 4, 3, '#dfe6f2'); p(2, by + 5, 2, 1, '#3ddcff'); p(1, by + 4, 4, 1, '#9aa6bb');
   }
   if (d.acc === 'hammer') { p(13, by - 1, 1, 7, '#8a5a2a'); p(12, by - 2, 3, 2, '#b9c2d0'); }
@@ -369,4 +386,79 @@ function drawTerminal(x, y, u, t = 0) {
   p(3, 6, 10, 8, '#07141c');
   for (let i = 0; i < 4; i++) p(4, 7 + i * 2, 2 + ((i * 3 + (t * 4 | 0)) % 7), 1, '#00ffa6');
   p(5, 16, 6, 5, '#2a3245'); p(4, 20, 8, 2, '#39455c');
+}
+
+
+/* ===========================================================
+   HAKARI'S JACKPOT DANCE
+   The full-body one: knees bent, arms pumping overhead,
+   hip swing, spin, and the pachinko jackpot going off behind him.
+   =========================================================== */
+const HAKARI_POSES = [
+  /* 0 both arms straight up, knees wide      */ { aup: 1, aup2: 1, all: 7, arl: 7, llx: -1, rlx: 1, lll: 4, rll: 4, lean: 0, hop: 2 },
+  /* 1 right fist punches up, lean left       */ { all: 4, aup2: 1, arl: 8, alx: -1, llx: -1, lll: 5, rll: 3, lean: -3, hop: 0 },
+  /* 2 left fist punches up, lean right       */ { aup: 1, all: 8, arl: 4, arx: 1, rlx: 1, lll: 3, rll: 5, lean: 3, hop: 0 },
+  /* 3 arms flung wide, big hop               */ { all: 4, arl: 4, alx: -2, arx: 2, llx: -2, rlx: 2, lll: 3, rll: 3, lean: 0, hop: 4 },
+  /* 4 arms tucked in, mid-spin               */ { all: 4, arl: 4, alx: 2, arx: -2, lll: 4, rll: 4, lean: 0, hop: 1, spin: 1 },
+  /* 5 both arms up higher, both feet off     */ { aup: 1, aup2: 1, all: 9, arl: 9, alx: -1, arx: 1, llx: -1, rlx: 1, lll: 3, rll: 3, lean: 0, hop: 5 },
+  /* 6 hands to hips, knee up                 */ { all: 3, arl: 3, alx: 1, arx: -1, rlx: 1, lll: 2, rll: 5, lean: -1, hop: 0 },
+  /* 7 one finger to the sky - JACKPOT        */ { all: 4, alx: -1, aup2: 1, arl: 10, arx: 1, llx: -1, rlx: 1, lll: 4, rll: 4, lean: 2, hop: 1 }
+];
+
+function drawHakariDance(spr, x, y, u, t) {
+  const beat = t * 6.2;                       // ~372 bpm of pure gambling
+  const i = Math.floor(beat) % HAKARI_POSES.length;
+  const pose = HAKARI_POSES[i];
+  const cx = x + 8 * u, cy = y + 11 * u;
+
+  /* --- jackpot light show behind him --- */
+  ctx.save();
+  ctx.globalAlpha = .16 + Math.abs(Math.sin(beat * 1.5)) * .12;
+  for (let r = 0; r < 10; r++) {
+    const a = (r / 10) * TAU + t * 1.6;
+    ctx.fillStyle = r % 2 ? '#ffd24a' : '#ff4fa3';
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(a - .1) * 118, cy + Math.sin(a - .1) * 118);
+    ctx.lineTo(cx + Math.cos(a + .1) * 118, cy + Math.sin(a + .1) * 118);
+    ctx.closePath(); ctx.fill();
+  }
+  ctx.restore();
+
+  /* --- the dancer --- */
+  ctx.save();
+  if (pose.spin) {
+    const k = beat % 1;
+    ctx.translate(cx, cy); ctx.scale(Math.cos(k * Math.PI) >= 0 ? 1 : -1, 1); ctx.translate(-cx, -cy);
+  }
+  ctx.translate(pose.lean || 0, -(pose.hop || 0) * 2);
+  drawActor(spr, x, y, u, { t, dir: 0, bob: false, pose });
+  ctx.restore();
+
+  /* --- pachinko balls raining out of the machine --- */
+  for (let b = 0; b < 14; b++) {
+    const bt = (t * 1.6 + b * 0.37) % 1;
+    const bx = cx + Math.sin(b * 2.3) * 70;
+    const by = cy - 70 + bt * 150;
+    rect(bx, by, 4, 4, b % 3 ? '#e8ecf7' : '#ffd24a');
+    rect(bx, by, 2, 2, '#ffffff');
+  }
+  /* --- coins + confetti --- */
+  for (let c = 0; c < 10; c++) {
+    const a = beat * .7 + c * 0.63;
+    const rr = 64 + Math.sin(a * 1.3) * 14;
+    const px = cx + Math.cos(a) * rr * 1.5, py = cy - 6 + Math.sin(a) * rr * .75;
+    text('$', px, py, { scale: 2, color: '#ffd24a', shadow: '#7a4a00' });
+  }
+  /* --- the sign --- */
+  const flash = Math.floor(beat) % 2 === 0;
+  const label = 'JACKPOT';
+  const w = textW(label, 2) + 14;
+  rect(cx - w / 2, cy - 92, w, 20, flash ? '#ffd24a' : '#b5342a');
+  frameRect(cx - w / 2, cy - 92, w, 20, '#fff', 2);
+  textC(label, cx, cy - 86, { scale: 2, color: flash ? '#7a4a00' : '#ffe9a8' });
+  for (let l = 0; l < 6; l++) {
+    const lx = cx - w / 2 + 4 + l * ((w - 8) / 5);
+    rect(lx, cy - 98, 4, 4, (Math.floor(beat * 2) + l) % 2 ? '#fff3d6' : '#8a6a2a');
+  }
 }

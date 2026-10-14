@@ -47,7 +47,7 @@ const EMOTES = {
   console: { name: 'Console Idle', kind: 'console', rar: RARITY.common, price: 150, dur: 2.4,
     desc: 'Just stand there and play your handheld. Peak Kenji.' },
   hakari:  { name: 'Hakari Dance', kind: 'hakari', rar: RARITY.epic, price: 2800, dur: 3.4,
-    desc: 'The jackpot dance. Orange has requested this 600 times.' },
+    desc: 'Hakari\'s jackpot dance, move for move: knees wide, arms pumping overhead, the spin, the finger to the sky. Orange has requested it 600 times.' },
   gojopeace:{ name: 'Gojo Peace Sign', kind: 'peace', rar: RARITY.rare, price: 1200, dur: 2.0,
     desc: 'Two fingers. Infinite smugness.' },
   nobara:  { name: 'Nobara Pose', kind: 'pose', rar: RARITY.uncommon, price: 600, dur: 2.0,
@@ -149,9 +149,14 @@ function drawEmoteAnim(x, y, u) {
   const em = Emote.playing, t = Emote.t;
   const spr = skinSprite();
   const k = em.kind;
+  if (k === 'hakari') {                       // the jackpot dance gets its own animator
+    drawHakariDance(spr, x, y, u, t);
+    textC(em.name, x + 8 * u, y - 14, { scale: 1, color: em.rar.col, shadow: '#000' });
+    return true;
+  }
   ctx.save();
   let ox = 0, oy = 0, rot = 0;
-  if (k === 'dance' || k === 'hakari') { ox = Math.sin(t * 9) * 5; oy = -Math.abs(Math.sin(t * 9)) * 5; }
+  if (k === 'dance') { ox = Math.sin(t * 9) * 5; oy = -Math.abs(Math.sin(t * 9)) * 5; }
   if (k === 'floss') { ox = Math.sin(t * 7) * 4; }
   if (k === 'wiggle') { rot = Math.sin(t * 14) * .18; }
   if (k === 'takel') { ox = Math.sin(t * 5) * 3; }
@@ -337,8 +342,15 @@ const Shop = {
       if (e.kind === 'skin') {
         drawActor(e.spr, px + pw / 2 - 8 * 5, ay + 8, 5, { t: this.t, dir: 0 });
       } else if (e.kind === 'emote') {
-        drawActor(skinSprite(), px + pw / 2 - 8 * 4 + Math.sin(this.t * 8) * 4, ay + 16, 4,
-          { t: this.t, dir: 0, walking: true, frame: (this.t * 9 | 0) % 4 });
+        if (e.kind === 'emote' && e.k === 'hakari') {
+          ctx.save();
+          ctx.beginPath(); ctx.rect(px + 10, ay, pw - 20, 110); ctx.clip();
+          drawHakariDance(skinSprite(), px + pw / 2 - 8 * 3, ay + 30, 3, this.t);
+          ctx.restore();
+        } else {
+          drawActor(skinSprite(), px + pw / 2 - 8 * 4 + Math.sin(this.t * 8) * 4, ay + 16, 4,
+            { t: this.t, dir: 0, walking: true, frame: (this.t * 9 | 0) % 4 });
+        }
         textC(e.kind, px + pw / 2, ay + 92, { scale: 1, color: '#8a7aa8' });
       } else if (e.kind === 'pack') {
         (e.items || []).concat(e.skins || []).slice(0, 4).forEach((id, i) => {

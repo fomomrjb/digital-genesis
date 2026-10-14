@@ -52,7 +52,7 @@ const Battle = {
     this.ehpMax = Math.round(e.hp * scale); this.ehp = this.ehpMax;
     this.eatk = e.atk; this.edef = e.def;
     this.turn = 0; this.btn = 0; this.idx = 0; this.bullets = [];
-    this.playerBuff = {}; this.enemyDebuff = {}; this.usedOnce = {}; this.phaseHit = {};
+    this.playerBuff = {}; this.enemyDebuff = {}; this.usedOnce = {}; this.phaseHit = {}; this.snacks = 0;
     this.transform = null; this.transformT = 0; this.tension = 0; this.graze = 0;
     this.spared = false; this.result = null; this.rewards = null; this.enemyDomainDef = null;
     this.onWin = opts.onWin || null; this.onLose = opts.onLose || null; this.onFlee = opts.onFlee || null;
@@ -126,8 +126,10 @@ const Battle = {
       } else if (b.id === 'domain') {
         const d = domainAbilities();
         if (!d.length) { Audio.sfx('deny'); this.say('* You cannot build a barrier yet. (Unlocks at LV 20.)'); return; }
-        if (this.tension < 50 && !G.infiniteDomain && !G.god) {
-          Audio.sfx('deny'); this.say('* Not enough focus. Graze attacks and land perfect hits to charge.'); return;
+        if (!d.some(a => this.canAfford(a))) {
+          Audio.sfx('deny');
+          this.say('* Not enough FOCUS to hold a barrier. (' + Math.floor(this.tension) + '/50)\n* Graze attacks and land perfect hits to charge it.');
+          return;
         }
         this.st = 'select'; this.selKind = 'domain'; this.idx = 0; this.scroll = 0; Audio.sfx('ok');
       } else if (b.id === 'spare') {
@@ -150,8 +152,8 @@ const Battle = {
   actList() {
     const l = [{ id: 'check', name: 'Check', desc: 'Read their data.' }];
     if (this.e.friendly) l.push({ id: 'talk', name: 'Talk', desc: 'Say something. Possibly rude.' });
-    l.push({ id: 'snack', name: 'Eat Snack', desc: 'Kenji is 12. This counts as strategy.' });
-    l.push({ id: 'hype', name: 'Orange Hype', desc: 'Let Orange scream encouragement. ATK up.' });
+    l.push({ id: 'snack', name: 'Eat Snack', desc: 'Heals 14 HP. Three per fight. Kenji is 12.' });
+    l.push({ id: 'hype', name: 'Orange Hype', desc: 'ATK x1.35 for the fight. Does not stack.' });
     if (this.e.infinity) l.push({ id: 'observe', name: 'Read Infinity', desc: 'Stare at the equation until it resolves.' });
     return l;
   },
@@ -259,18 +261,21 @@ const Battle = {
       this.bar = null; this.endPlayerTurn(); return;
     }
     // accuracy -> damage
-    let mult = 0;
-    landed.forEach((q, i) => mult += q * (1 + i * .22));     // later hits in a chain are worth more
+    /* average accuracy x a modest chain bonus - a long combo is better,
+       but it no longer multiplies into the thousands */
+    const avgQ = landed.reduce((a, q) => a + q, 0) / landed.length;
+    const chain = 1 + .15 * (landed.length - 1);
+    const mult = avgQ * chain;
     const perfectCount = b.results.filter(r => r === 1).length;
     const allPerfect = b.perfectAll && comboN === b.hits;
-    let dmg = Math.max(1, Math.round(G.atkTotal() * ab.power * mult * (this.playerBuff.atk || 1)) - this.edefNow());
+    let dmg = Math.max(1, Math.round(G.atkTotal() * ab.power * mult * 1.6 * (this.playerBuff.atk || 1)) - this.edefNow());
     if (this.inGhost()) dmg = this.ghostDmg(dmg);
-    this.tension = clamp(this.tension + comboN * 6 + perfectCount * 5, 0, this.tensionMax);
+    this.tension = clamp(this.tension + comboN * 5 + perfectCount * 4, 0, this.tensionMax);
 
     const ex = this.enemyX(), ey = this.enemyY();
     /* ---- ORANGE FLASH ---- */
     if (ab.id === 'orangeflash' && (allPerfect || G.god)) {
-      dmg = Math.round(dmg * 10);
+      dmg = Math.max(Math.round(dmg * 2), Math.ceil(this.ehpMax * .5));
       G.orangeFlashes++; this.usedOnce[ab.id] = true;
       FX.orangeFlash(ex, ey, {});
       this.dealDamage(dmg, { crit: 'orange' });
@@ -282,9 +287,9 @@ const Battle = {
     const bfProc = (ab.id === 'blackflash' && allPerfect) ||
                    (bfReady && allPerfect && comboN >= 3 && Math.random() < .34) || (bfReady && G.god && allPerfect);
     if (bfProc) {
-      dmg = Math.round(dmg * 2.5);
+      dmg = Math.round(dmg * 2.0);
       G.blackFlashes++;
-      FX.blackFlash(ex, ey, { mult: 2.5, dev: 0.000001 });
+      FX.blackFlash(ex, ey, { mult: 2.0, dev: 0.000001 });
       this.dealDamage(dmg, { crit: 'black' });
       this.say('* BLACK FLASH! The space around the impact goes crunch.');
       this.tension = clamp(this.tension + 25, 0, this.tensionMax);
@@ -301,11 +306,20 @@ const Battle = {
   },
 
   /* ============ techniques ============ */
+  focusCost(ab) { return (G.god || G.infiniteDomain) ? 0 : (ab.focus || 0); },
+  canAfford(ab) { return this.tension >= this.focusCost(ab); },
+
   useTech(ab) {
     const ex = this.enemyX(), ey = this.enemyY();
+    const cost = this.focusCost(ab);
+    if (this.tension < cost) {
+      Audio.sfx('deny');
+      this.say('* Not enough FOCUS. (' + Math.floor(this.tension) + '/' + cost + ')\n* Land combo hits and graze their attacks to charge it.');
+      this.st = 'menu'; return;
+    }
+    this.tension = clamp(this.tension - cost, 0, this.tensionMax);
     if (ab.once) this.usedOnce[ab.id] = true;
     FX.techniqueCutIn(ab);
-    this.tension = clamp(this.tension + 10, 0, this.tensionMax);
 
     switch (ab.id) {
       case 'o_heal':
@@ -403,7 +417,7 @@ const Battle = {
 
   calcDmg(ab, pierce) {
     const def = pierce || ab.pierce || this.inGhost() ? 0 : this.edefNow();
-    let d = Math.max(1, Math.round(G.atkTotal() * (ab.power || 1) * 1.8 * (this.playerBuff.atk || 1)) - def);
+    let d = Math.max(1, Math.round(G.atkTotal() * (ab.power || 1) * 1.7 * (this.playerBuff.atk || 1)) - def);
     if (this.inGhost()) d = this.ghostDmg(d);
     if (G.oneShot) d = 99999;
     return d;
@@ -472,19 +486,31 @@ const Battle = {
         this.sparePct = Math.min(100, this.sparePct + 34);
         this.say('* You said something only a 12-year-old would say. It landed. (' + this.sparePct + '%)');
         break;
-      case 'snack':
+      case 'snack': {
+        this.snacks = (this.snacks || 0) + 1;
+        if (this.snacks > 2) {
+          Audio.sfx('deny');
+          this.say('* Your pockets are empty. You ate everything. You are twelve.');
+          break;
+        }
         G.heal(14); Audio.sfx('heal');
         FX.pop(this.playerX(), this.playerY() - 20, '+14', { col: PAL.green, scale: 2 });
-        this.say('* You ate a snack mid-fight. +14 HP. Orange is furious he cannot eat.');
-        break;
+        this.say('* You ate a snack mid-fight. +14 HP. (' + (3 - this.snacks) + ' left.) Orange is furious he cannot eat.');
+        break; }
       case 'hype':
-        this.playerBuff.atk = (this.playerBuff.atk || 1) * 1.35;
+        if ((this.playerBuff.atk || 1) >= 1.35) {
+          Audio.sfx('deny');
+          this.bark('ORANGE: "im ALREADY screaming. i cant scream MORE."');
+          this.say('* Orange is already at maximum volume. (ATK buff does not stack.)');
+          break;
+        }
+        this.playerBuff.atk = 1.35;
         Audio.sfx('orangetalk');
         this.bark('ORANGE: "YOURE HIM. YOURE LITERALLY HIM. SWING."');
         this.say('* Orange screams directly into your skull. ATK up.');
         break;
       case 'observe':
-        this.enemyDebuff.infinityOff = 2;
+        this.enemyDebuff.infinityOff = 1;
         this.say('* You read the equation. It is a division-by-zero error. It has a value. (Infinity weakened.)');
         break;
     }
@@ -507,8 +533,13 @@ const Battle = {
   /* ============ DOMAIN ============ */
   openDomain(ab) {
     const def = DOMAINS[ab.domain];
+    if (!this.canAfford(ab)) {
+      Audio.sfx('deny');
+      this.say('* Not enough FOCUS for that barrier. (' + Math.floor(this.tension) + '/' + this.focusCost(ab) + ')');
+      this.st = 'menu'; return;
+    }
     G.domainsUsed++;
-    if (!G.infiniteDomain && !G.god) this.tension = Math.max(0, this.tension - 50);
+    this.tension = Math.max(0, this.tension - this.focusCost(ab));
     FX.domainExpansion(def, { x: this.playerX(), y: this.playerY() });
     timers.after(4.1, () => {
       DomainFight.start(def, this, ab);
@@ -646,7 +677,7 @@ const Battle = {
         if (hit) this.soulHit(b);
         else if (b.rectW ? false : dist(this.soul.x, this.soul.y, b.x, b.y) < (b.r || 6) + 14) {
           // graze
-          this.graze += dt * 10; this.tension = clamp(this.tension + dt * 14, 0, this.tensionMax);
+          this.graze += dt * 10; this.tension = clamp(this.tension + dt * 8, 0, this.tensionMax);
           if (Math.random() < .25) FX.part(this.soul.x, this.soul.y, { kind: 'spark', col: PAL.green, size: 2, life: .2, g: 0 });
         }
       }
@@ -681,6 +712,7 @@ const Battle = {
       this.invul = 1.2; return;
     }
     G.hp = Math.max(0, G.hp - dmg);
+    this.tension = clamp(this.tension + 6, 0, this.tensionMax);
     this.invul = .7; this.pHurt = .4;
     Audio.sfx('hurt'); FX.shake(6, .25); FX.flash('#ff3b3b', .12, .4);
     FX.pop(this.soul.x, this.soul.y - 16, '-' + dmg, { col: PAL.red, scale: 2 });
@@ -1071,7 +1103,9 @@ const Battle = {
     text('FOCUS', tx, sy + 2, { scale: 1, color: PAL.green });
     rect(tx + 40, sy + 1, 96, 9, '#13213a'); frameRect(tx + 40, sy + 1, 96, 9, '#2a3450', 1);
     rect(tx + 41, sy + 2, 94 * (this.tension / this.tensionMax), 7, this.tension >= 50 ? PAL.green : PAL.cyan);
-    if (this.tension >= 50 && Math.sin(this.t * 7) > 0) text('DOMAIN READY', tx + 40, sy - 10, { scale: 1, color: PAL.green });
+    text(Math.floor(this.tension) + '/100', tx + 140, sy + 2, { scale: 1, color: '#cfe3ff' });
+    if (this.tension >= 100 && Math.sin(this.t * 7) > 0) text('ULTRA READY', tx + 40, sy - 10, { scale: 1, color: PAL.orange });
+    else if (this.tension >= 50 && Math.sin(this.t * 7) > 0) text('DOMAIN READY', tx + 40, sy - 10, { scale: 1, color: PAL.green });
     text('CE ∞', W - 70, sy, { scale: 2, color: PAL.green });
 
     // buttons
@@ -1104,6 +1138,10 @@ const Battle = {
       text(nm, 46, y, { scale: 2, color: sel ? (e.col || PAL.yellow) : '#8fa0bd' });
       if (e.k && G.items[e.k]) text('x' + G.items[e.k], 262, y, { scale: 1, color: '#8fa0bd' });
       if (e.tag) text('[' + e.tag + ']', 286, y + 3, { scale: 1, color: '#55637d' });
+      if (e.focus) {
+        const ok = this.canAfford(e);
+        text(e.focus + ' FP', 236, y + 3, { scale: 1, color: ok ? PAL.green : PAL.red });
+      }
       if (sel) {
         const d = e.desc || e.flavour || '';
         wrap(d, 38).slice(0, 3).forEach((l, j) => text(l, 366, by + 5 + j * 12, { scale: 1, color: '#cfe3ff' }));

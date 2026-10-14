@@ -188,7 +188,7 @@ const Game = {
     Dlg.start([
       { who: 'sys', t: 'CONTROLS\nArrows / WASD  move & dodge\nZ or Enter  confirm / jump\nX or Shift  cancel / slash / run\nC  menu (and the domain dev-menu)\nB  emote wheel\nR  dash   V  focus-heal\n/  command console   F  fullscreen' },
       { who: 'sys', t: 'BATTLE\nFIGHT: stop the marker in the centre of the bar.\nEvery hit you land makes the bar FASTER — land them all for a combo finish.\nAll-perfect combos can trigger BLACK FLASH (x2.5).' },
-      { who: 'sys', t: 'DODGE\nOn the enemy turn, move your soul inside the box.\nGrazing attacks charges FOCUS. At 50% FOCUS you can expand a domain.' },
+      { who: 'sys', t: 'DODGE\nOn the enemy turn, move your soul inside the box.\nYour cursed energy is infinite, so every technique is free \u2014 but grazing\nattacks charges FOCUS, and a DOMAIN costs 50 FOCUS to hold.' },
       { who: 'sys', t: 'DOMAINS\nInside a domain the game becomes a side-view action fight.\nSANDBOX MODE gives you a developer menu over the rules of the space.\nERROR 404 runs a 30-second format on the target\'s existence.' },
       { who: 'sys', t: 'DEATH\nIf Kenji hits 0 HP you take control of ORANGE.\nWin as a pumpkin, then run ORANGE HEAL to bring Kenji back.' },
       { who: 'sys', t: 'MONEY\nExorcisms pay dollars. Spend them on skins and emote packs\nat Orange\'s shop. Rarities run COMMON to MYTHIC.' }
