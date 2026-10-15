@@ -169,9 +169,14 @@ const Input = {
   clear() { this.down = {}; this.pressed = {}; }
 };
 addEventListener('keydown', e => {
-  if (window.ChatConsole && ChatConsole.open) return;        // chat eats input
+  /* NOTE: ChatConsole is a top-level `const`, so it lives in the global LEXICAL
+     scope and is NOT a property of window. Referencing it as window.ChatConsole
+     is always undefined - which silently broke the "/" key entirely. */
+  const CC = typeof ChatConsole !== 'undefined' ? ChatConsole : null;
+  if (CC && CC.open) return;                                  // chat eats input
   const a = Input.map[e.code];
-  if (e.code === 'Slash' && !e.repeat) { if (window.ChatConsole) ChatConsole.show(); e.preventDefault(); return; }
+  const slash = e.code === 'Slash' || e.key === '/';           // non-US layouts too
+  if (slash && !e.repeat) { if (CC) CC.show(); e.preventDefault(); return; }
   if (!a) return;
   e.preventDefault();
   if (!e.repeat) { Input.pressed[a] = true; Input.anyKey = true; }

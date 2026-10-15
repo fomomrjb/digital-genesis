@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DIGITAL GENESIS — Chapter 1</title>
-<link rel="stylesheet" href="css/style.css?v=32">
+<link rel="stylesheet" href="css/style.css?v=36">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>🍊</text></svg>">
 </head>
 <body>
@@ -13,6 +13,15 @@
     <canvas id="game" width="640" height="480"></canvas>
     <div id="scanlines"></div>
     <div id="crtglow"></div>
+    <!-- these live INSIDE screenwrap so they survive fullscreen -->
+    <div id="chatoverlay" class="hidden">
+      <div id="chatlog"></div>
+      <div id="chatinputrow"><span id="chatprompt">&gt;</span><input id="chatinput" type="text" autocomplete="off" spellcheck="false" maxlength="120"></div>
+    </div>
+    <div id="adminpanel" class="hidden">
+      <div class="apHead">■ SANDBOX MODE :: DEVELOPER TOOLS <button id="apClose">X</button></div>
+      <div class="apBody" id="apBody"></div>
+    </div>
   </div>
   <div id="hintbar">
     <span><b>Z</b>/<b>Enter</b> Confirm</span>
@@ -24,33 +33,25 @@
     <span><b>F</b> Fullscreen</span>
   </div>
 </div>
-<div id="chatoverlay" class="hidden">
-  <div id="chatlog"></div>
-  <div id="chatinputrow"><span id="chatprompt">&gt;</span><input id="chatinput" type="text" autocomplete="off" spellcheck="false" maxlength="120"></div>
-</div>
-<div id="adminpanel" class="hidden">
-  <div class="apHead">■ SANDBOX MODE :: DEVELOPER TOOLS <button id="apClose">X</button></div>
-  <div class="apBody" id="apBody"></div>
-</div>
 <div id="rotate" class="hidden">DIGITAL GENESIS needs a wider window.<br><br>Rotate your device, or widen the browser.</div>
 
-<script src="js/util.js?v=32"></script>
-<script src="js/audio.js?v=32"></script>
-<script src="js/sprites.js?v=32"></script>
-<script src="js/fx.js?v=32"></script>
-<script src="js/state.js?v=32"></script>
-<script src="js/abilities.js?v=32"></script>
-<script src="js/enemies.js?v=32"></script>
-<script src="js/dialogue.js?v=32"></script>
-<script src="js/ui.js?v=32"></script>
-<script src="js/shop.js?v=32"></script>
-<script src="js/battle.js?v=32"></script>
-<script src="js/domain.js?v=32"></script>
-<script src="js/orangefight.js?v=32"></script>
-<script src="js/overworld.js?v=32"></script>
-<script src="js/console.js?v=32"></script>
-<script src="js/story.js?v=32"></script>
-<script src="js/story2.js?v=32"></script>
-<script src="js/main.js?v=32"></script>
+<script src="js/util.js?v=36"></script>
+<script src="js/audio.js?v=36"></script>
+<script src="js/sprites.js?v=36"></script>
+<script src="js/fx.js?v=36"></script>
+<script src="js/state.js?v=36"></script>
+<script src="js/abilities.js?v=36"></script>
+<script src="js/enemies.js?v=36"></script>
+<script src="js/dialogue.js?v=36"></script>
+<script src="js/ui.js?v=36"></script>
+<script src="js/shop.js?v=36"></script>
+<script src="js/battle.js?v=36"></script>
+<script src="js/domain.js?v=36"></script>
+<script src="js/orangefight.js?v=36"></script>
+<script src="js/overworld.js?v=36"></script>
+<script src="js/console.js?v=36"></script>
+<script src="js/story.js?v=36"></script>
+<script src="js/story2.js?v=36"></script>
+<script src="js/main.js?v=36"></script>
 </body>
 </html>

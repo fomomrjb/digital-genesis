@@ -159,7 +159,11 @@ const Game = {
     if (LevelUp.busy()) LevelUp.draw();
     if (ChatConsole.open) {
       ctx.save(); ctx.globalAlpha = .35; rect(0, 0, W, H, '#000'); ctx.restore();
-      textC('CONSOLE OPEN — type /help  —  Esc to close', W / 2, 20, { scale: 2, color: PAL.green, shadow: '#000' });
+      const cmsg = 'CONSOLE OPEN — type /help — Esc to close';
+      const cbw = textW(cmsg, 2) + 24;
+      rect(W / 2 - cbw / 2, 4, cbw, 22, '#031410');
+      frameRect(W / 2 - cbw / 2, 4, cbw, 22, PAL.green, 2);
+      textC(cmsg, W / 2, 11, { scale: 2, color: PAL.green });
     }
     Fade.draw();
 
